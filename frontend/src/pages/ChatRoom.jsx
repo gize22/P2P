@@ -4,14 +4,13 @@ import io from "socket.io-client";
 import API from "../api";
 import Navbar from "../components/Navbar";
 
-const socket = io("http://localhost:5000");
-
 export default function ChatRoom() {
   const { groupId } = useParams();
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [groupInfo, setGroupInfo] = useState(null);
+  const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
@@ -23,6 +22,10 @@ export default function ChatRoom() {
     }
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
+
+    // Socket Connection ማቋቋም
+    const newSocket = io("http://localhost:5000");
+    setSocket(newSocket);
 
     // የ ግሩፕ መረጃ ማምጣት
     API.get("/groups")
@@ -38,15 +41,15 @@ export default function ChatRoom() {
       .catch((err) => console.error("Error fetching messages", err));
 
     // ወደ ቻት ሩም መቀላቀል
-    socket.emit("join_room", groupId);
+    newSocket.emit("join_room", groupId);
 
     // መልእክት ሲመጣ ማዳመጥ (Listen)
-    socket.on("receive_message", (data) => {
+    newSocket.on("receive_message", (data) => {
       setMessages((prev) => [...prev, data]);
     });
 
     return () => {
-      socket.off("receive_message");
+      newSocket.disconnect();
     };
   }, [groupId, navigate]);
 
@@ -57,19 +60,14 @@ export default function ChatRoom() {
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user) return;
+    if (!newMessage.trim() || !user || !socket) return;
 
     const messageData = {
-        sender: user.id,
-        groupId: groupId,
-        // 👈 target="_blank" እና rel="noopener noreferrer" ሲነካው በአዲስ ታብ (Preview) እንጂ አውቶማቲክ ዳውንሎድ እንዳያደርግ ያደርገዋል
-        message: `<div class="flex items-center gap-2 bg-gray-50 p-2 rounded border">
-                    <span>📄</span>
-                    <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 font-semibold text-xs hover:text-blue-800">
-                      View/Download: ${file.name}
-                    </a>
-                  </div>`,
-      };
+      sender: user.id,
+      groupId: groupId,
+      message: newMessage,
+    };
+
     socket.emit("send_message", messageData);
     setNewMessage("");
   };
@@ -77,7 +75,7 @@ export default function ChatRoom() {
   // ምስል ወይም ፋይል ዩፕሎድ ለማድረግ
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file || !user) return;
+    if (!file || !user || !socket) return;
 
     const formData = new FormData();
     formData.append("file", file);
@@ -91,7 +89,12 @@ export default function ChatRoom() {
       const messageData = {
         sender: user.id,
         groupId: groupId,
-        message: `<a href="${fileUrl}" target="_blank" class="underline text-blue-600 font-bold">[Attachment: ${file.name}]</a>`,
+        message: `<div class="flex items-center gap-2 bg-gray-50 p-2 rounded border">
+                    <span>📄</span>
+                    <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 font-semibold text-xs hover:text-blue-800">
+                      View/Download: ${file.name}
+                    </a>
+                  </div>`,
       };
 
       socket.emit("send_message", messageData);
