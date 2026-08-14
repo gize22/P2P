@@ -16,6 +16,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const Message = require("./models/Message");
 const groupInviteRoutes = require("./routes/groupInviteRoutes");
 const questionRoutes = require("./routes/questionRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 
 
 const app = express();
@@ -47,7 +48,7 @@ app.use("/api/chats", chatRoutes);
 app.use("/api/group-invites", groupInviteRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/questions", questionRoutes);
-
+app.use("/api/admin", adminRoutes);
 
 
 // Socket.IO Real-time Connection

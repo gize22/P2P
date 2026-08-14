@@ -11,6 +11,9 @@ import PrivateChat from "./pages/PrivateChat"; //
 import Profile from "./pages/Profile"; 
 import Community from "./pages/Community"
 import VerifyOTP from "./pages/VerifyOTP"; 
+import AdminDashboard from "./pages/AdminDashboard";
+
+
 
 export default function App() {
   return (
@@ -27,6 +30,7 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/community" element={<Community />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </BrowserRouter>
   );

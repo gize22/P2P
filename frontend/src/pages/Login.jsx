@@ -17,7 +17,14 @@ export default function Login() {
       const res = await API.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+
+      // 👈 Real-world Role-based Routing (እንደ ዩሰሩ ሮል መርጦ መውሰድ)
+      if (res.data.user.role === "admin") {
+        navigate("/admin"); // አድሚን ከሆነ ወደ አድሚን ፓነል
+      } else {
+        navigate("/dashboard"); // ተማሪ ከሆነ ወደ መደበኛ ዳሽቦርድ
+      }
+      
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {
