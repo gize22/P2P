@@ -7,7 +7,6 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true
     },
-
     email: {
       type: String,
       required: true,
@@ -15,46 +14,55 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true
     },
-
     password: {
       type: String,
       required: true
     },
-
     university: {
       type: String,
       required: true
     },
-
     bio: {
       type: String,
       default: ""
     },
-
     profileImage: {
       type: String,
       default: ""
     },
-
     skillsToTeach: {
       type: [String],
       default: []
     },
-
     skillsToLearn: {
       type: [String],
       default: []
     },
-
     rating: {
       type: Number,
       default: 0
     },
-
     role: {
       type: String,
       enum: ["student", "admin"],
       default: "student"
+    },
+    // 👈 አዳዲስ Real-world ፊልዶች (ለ Email OTP Verification እና Password Reset)
+    isVerified: {
+      type: Boolean,
+      default: false
+    },
+    otp: {
+      type: String
+    },
+    otpExpires: {
+      type: Date
+    },
+    resetPasswordToken: {
+      type: String
+    },
+    resetPasswordExpires: {
+      type: Date
     }
   },
   {
