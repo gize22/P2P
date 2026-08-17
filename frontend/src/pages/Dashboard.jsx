@@ -13,9 +13,9 @@ export default function Dashboard() {
   const [learners, setLearners] = useState([]);
   const [myRequests, setMyRequests] = useState([]);
   const [mySessions, setMySessions] = useState([]);
+  const [announcements, setAnnouncements] = useState([]);
   const [loading, setLoading] = useState(false);
   
-  // Session Modal States
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [sessionDate, setSessionDate] = useState("");
@@ -33,25 +33,28 @@ export default function Dashboard() {
       fetchAllLearners(parsedUser.id);
       fetchMyRequests(parsedUser.id);
       fetchMySessions(parsedUser.id);
+      fetchAnnouncements();
 
-      // ዩሰሩን በራሱ ID ሩም ውስጥ ማስገባት (ለ ኖቲፊኬሽን)
       socket.emit("join_room", parsedUser.id);
 
-      // አዲስ ሪኩዌስት ሲመጣ (Real-time notification)
       socket.on("receive_request", (newReq) => {
         setMyRequests((prev) => [newReq, ...prev]);
         alert("You received a new learning request!");
       });
 
-      // ከቻት ውጭ ሆኖ መልእክት ሲደርሰው (Real-time chat notification)
       socket.on("receive_notification", () => {
         alert("New message received! Check your chats.");
+      });
+
+      socket.on("receive_announcement", (ann) => {
+        setAnnouncements((prev) => [ann, ...prev]);
       });
     }
 
     return () => {
       socket.off("receive_request");
       socket.off("receive_notification");
+      socket.off("receive_announcement");
     };
   }, [navigate]);
 
@@ -87,6 +90,15 @@ export default function Dashboard() {
       setMySessions(res.data);
     } catch (err) {
       console.error("Error fetching sessions", err);
+    }
+  };
+
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await API.get("/admin/announcements");
+      setAnnouncements(res.data);
+    } catch (err) {
+      console.error("Error fetching announcements", err);
     }
   };
 
@@ -147,8 +159,19 @@ export default function Dashboard() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-4 sm:p-6 transition-colors duration-200">
       <Navbar user={user} />
+
+      {/* Announcements Banner */}
+      {announcements.length > 0 && (
+        <div className="max-w-6xl mx-auto mb-6 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 rounded-2xl shadow-md flex items-start gap-3">
+          <span className="text-2xl">📢</span>
+          <div>
+            <h3 className="font-bold text-sm uppercase tracking-wide">Platform Announcement</h3>
+            <p className="text-xs mt-1 text-amber-100">{announcements[0].message}</p>
+          </div>
+        </div>
+      )}
 
       <RequestsList
         myRequests={myRequests}
@@ -166,14 +189,16 @@ export default function Dashboard() {
 
       {/* Session Modal */}
       {showSessionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <form onSubmit={handleCreateSession} className="bg-white p-6 rounded-lg shadow-md w-96">
-            <h3 className="text-lg font-bold mb-4 text-indigo-600">Schedule Learning Session</h3>
-            <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required className="w-full mb-3 p-2 border rounded" />
-            <input type="text" placeholder="Time (e.g. 3:00 PM)" value={sessionTime} onChange={(e) => setSessionTime(e.target.value)} required className="w-full mb-4 p-2 border rounded" />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4">
+          <form onSubmit={handleCreateSession} className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-6 rounded-3xl shadow-2xl w-full max-w-md">
+            <h3 className="text-lg font-bold mb-4 text-indigo-600 dark:text-indigo-400">Schedule Learning Session</h3>
+            <label className="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1">Date</label>
+            <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required className="w-full mb-3 p-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-xl text-sm dark:text-white" />
+            <label className="block text-xs font-semibold text-gray-600 dark:text-slate-400 mb-1">Time</label>
+            <input type="text" placeholder="e.g. 3:00 PM" value={sessionTime} onChange={(e) => setSessionTime(e.target.value)} required className="w-full mb-4 p-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-xl text-sm dark:text-white" />
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={() => setShowSessionModal(false)} className="bg-gray-400 text-white px-4 py-2 rounded text-sm">Cancel</button>
-              <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded text-sm">Save Session</button>
+              <button type="button" onClick={() => setShowSessionModal(false)} className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Cancel</button>
+              <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Save Session</button>
             </div>
           </form>
         </div>

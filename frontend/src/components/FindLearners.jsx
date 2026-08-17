@@ -12,18 +12,18 @@ export default function FindLearners({ learners, loading, onSearch, onSendReques
     <div className="max-w-5xl mx-auto">
       {/* Search Bar */}
       <div className="mb-8">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Search learners by skill (e.g., React, JavaScript)..."
-            value={searchSkill}
-            onChange={(e) => setSearchSkill(e.target.value)}
-            className="flex-1 p-3 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-          <button type="submit" className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium">
-            Search
-          </button>
-        </form>
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2">
+  <input
+    type="text"
+    placeholder="Search learners by skill..."
+    value={searchSkill}
+    onChange={(e) => setSearchSkill(e.target.value)}
+    className="flex-1 p-3 border rounded-lg shadow-sm text-sm focus:outline-none"
+  />
+  <button type="submit" className="bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 font-medium text-sm">
+    Search
+  </button>
+</form>
       </div>
 
       {/* Learners List */}

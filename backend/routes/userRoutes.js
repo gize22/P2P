@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("../models/User");
+const Announcement = require("../models/Announcement")
 
 const router = express.Router();
 
@@ -65,6 +66,16 @@ router.put("/:id", async (req, res) => {
       message: "Profile updated successfully",
       user: updatedUser
     });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+// GET ALL ANNOUNCEMENTS (ለሁሉም ማስታወሻዎች ማምጫ)
+router.get("/announcements", async (req, res) => {
+  try {
+    const announcements = await Announcement.find().sort({ createdAt: -1 }).limit(5); // የቅርብ ጊዜ 5 ማስታወሻዎች
+    res.status(200).json(announcements);
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
