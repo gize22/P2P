@@ -61,15 +61,18 @@ export default function Login() {
           <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30 text-sm mt-2 disabled:opacity-50">
             {loading ? "Signing in..." : "Sign In"}
           </button>
+          <Link to="/forgot-password" className="text-[11px] text-indigo-400 hover:underline">Forgot password?</Link>
         </form>
        {/* Back to Home Link */}
 <div className="absolute top-6 left-6">
   <Link to="/" className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
     ← Back to Home
   </Link>
+  
 </div>
         <p className="mt-8 text-xs text-center text-slate-400">
           Don't have an account? <Link to="/register" className="text-indigo-400 font-semibold hover:underline">Register</Link>
+          
         </p>
       </div>
     </div>

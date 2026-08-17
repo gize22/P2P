@@ -12,6 +12,8 @@ import Profile from "./pages/Profile";
 import Community from "./pages/Community"
 import VerifyOTP from "./pages/VerifyOTP"; 
 import AdminDashboard from "./pages/AdminDashboard";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 
 
@@ -31,6 +33,8 @@ export default function App() {
           <Route path="/community" element={<Community />} />
           <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
       </Routes>
     </BrowserRouter>
   );
