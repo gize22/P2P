@@ -65,7 +65,7 @@ export default function Login() {
         </form>
        {/* Back to Home Link */}
 <div className="absolute top-6 left-6">
-  <Link to="/" className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition">
+  <Link to="/" className="text-xs text-white hover:text-white flex items-center gap-1 transition bg-green-500/40 border border-green-500/20 px-4 py-2 rounded-xl shadow-md">
     ← Back to Home
   </Link>
   

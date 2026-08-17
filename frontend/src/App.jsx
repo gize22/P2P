@@ -14,7 +14,7 @@ import VerifyOTP from "./pages/VerifyOTP";
 import AdminDashboard from "./pages/AdminDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-
+import HowItWorks from "./pages/HowItWorks";
 
 
 export default function App() {
@@ -26,7 +26,7 @@ export default function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<Dashboard />} />
          <Route path="/groups" element={<Groups />} />
-        <Route path="*" element={<Navigate to="/login" />} />
+      
           <Route path="/chat/:groupId" element={<ChatRoom />} />
           <Route path="/private-chat/:receiverId" element={<PrivateChat />} />
           <Route path="/profile" element={<Profile />} />
@@ -35,6 +35,10 @@ export default function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          {/* 👈 path="*" ሁልጊዜ ከመጨረሻው ላይ መሆን አለበት */}
+        <Route path="*" element={<Navigate to="/" />} />
+
       </Routes>
     </BrowserRouter>
   );

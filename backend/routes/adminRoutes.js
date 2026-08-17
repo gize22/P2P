@@ -134,7 +134,6 @@ router.delete("/reviews/:id", async (req, res) => {
   }
 });
 
-module.exports = router; // 👈 ይህ በጣም አስፈላጊ ነው!
 
 // 11. GET ALL COMMUNITY QUESTIONS (ለአድሚን ጥያቄዎችን ማሳያ)
 router.get("/questions", async (req, res) => {
@@ -211,3 +210,35 @@ router.get("/announcements", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
+// 15. SEND DIRECT WARNING TO STUDENT
+router.post("/send-warning", async (req, res) => {
+  try {
+    const { adminId, studentId, message } = req.body;
+    if (!studentId || !message) {
+      return res.status(400).json({ message: "Student ID and message are required" });
+    }
+
+    const warningMessage = await Message.create({
+      sender: adminId,
+      receiver: studentId,
+      message: `⚠️ [ADMIN WARNING]: ${message}`
+    });
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(studentId.toString()).emit("receive_notification", {
+        sender: adminId,
+        message: "You received an administrative warning!",
+        type: "admin_warning"
+      });
+    }
+
+    res.status(201).json({ message: "Warning sent successfully", warningMessage });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+module.exports = router; // 👈 ይህ በጣም አስፈላጊ ነው!
+

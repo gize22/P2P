@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
@@ -44,10 +45,12 @@ export default function Home() {
           </div>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-            <Link to="/" className="text-indigo-600 font-semibold">Home</Link>
-            <a href="#features" className="hover:text-indigo-600 transition">How It Works</a>
-          </div>
+          {/* Home.jsx ውስጥ ያሉት ናቭባር ሊንኮች እንደዚህ መሆን አለባቸው */}
+               {/* Home.jsx ውስጥ ያሉት ናቭባር ሊንኮች እንደዚህ መሆን አለባቸው */}
+<div className="hidden md:flex items-center gap-8 text-sm font-medium">
+  <Link to="/" className="text-indigo-600 font-semibold">Home</Link>
+  <Link to="/how-it-works" className="hover:text-indigo-600 transition">How It Works</Link>
+</div>
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-4">
@@ -80,7 +83,7 @@ export default function Home() {
         {mobileMenuOpen && (
           <div className={`md:hidden border-b px-6 py-4 space-y-3 shadow-xl ${darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
             <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-indigo-600">Home</Link>
-            <a href="#features" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">How It Works</a>
+           <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">How It Works</Link>
             <div className="pt-3 border-t border-gray-100 dark:border-slate-800 flex gap-3">
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold border rounded-lg">Login</Link>
               <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg">Register</Link>
@@ -147,21 +150,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className={`py-10 border-t transition-colors duration-200 ${
-        darkMode ? "bg-slate-950 text-slate-400 border-slate-800" : "bg-white text-gray-500 border-gray-200"
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6 text-center md:text-left">
-          <div className="flex items-center gap-3 justify-center">
-            <div className="bg-indigo-600 text-white p-2 rounded-xl font-bold text-sm">P2P</div>
-            <span className={`font-bold ${darkMode ? "text-white" : "text-gray-900"}`}>P2P Learn</span>
-          </div>
-          <p className="text-xs">© 2026 P2P Learn. All rights reserved. Built for collaborative success.</p>
-          <div className="flex gap-6 text-sm">
-            <Link to="/login" className="transition">Login</Link>
-            <Link to="/register" className="transition">Register</Link>
-          </div>
-        </div>
-      </footer>
+    
+     <Footer />
     </div>
   );
 }

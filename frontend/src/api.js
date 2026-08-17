@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "http://172.16.6.126:5000/api",
 });
 
 // ቶከኑን በ request ጊዜ አብሮ እንዲልክ ማድረግ (ለወደፊት ይጠቅመናል)

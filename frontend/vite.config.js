@@ -15,4 +15,9 @@ export default defineConfig({
     react(),
     tailwindcss(), // 👈 ይህንን እዚህ አስገባ
   ],
+  server: {
+    host: true, // 👈 ይህ በጣም አስፈላጊ ነው! ከኮምፒዩተር ውጭ (በስልክ ወይም በኔትወርክ) እንዲከፈት ያደርጋል።
+    port: 5173
+  }
+
 })
