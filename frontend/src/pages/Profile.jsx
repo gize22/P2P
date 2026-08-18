@@ -13,6 +13,8 @@ export default function Profile() {
     skillsToLearn: "",
   });
   const [message, setMessage] = useState("");
+  
+  const isDark = localStorage.getItem("theme") === "dark";
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,7 +26,6 @@ export default function Profile() {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
 
-    // ከ Backend የዩሰሩን ወቅታዊ መረጃ ማምጣት
     API.get(`/users/${parsedUser.id}`)
       .then((res) => {
         const u = res.data;
@@ -56,7 +57,6 @@ export default function Profile() {
 
       const res = await API.put(`/users/${user.id}`, payload);
       
-      // LocalStorage ማዘመን
       const updatedUserObj = { ...user, name: res.data.user.name, university: res.data.user.university };
       localStorage.setItem("user", JSON.stringify(updatedUserObj));
       setUser(updatedUserObj);
@@ -70,41 +70,46 @@ export default function Profile() {
 
   if (!user) return null;
 
+  // 👈 የ Dark እና Light ሞድ ትክክለኛ ከለሮች
+  const bgMain = isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900";
+  const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
+  const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-gray-50 border-gray-300 text-gray-900 placeholder-gray-400";
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className={`min-h-screen w-full p-4 sm:p-8 transition-colors duration-200 ${bgMain}`}>
       <Navbar user={user} />
 
-      <div className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow border mt-6">
-        <h2 className="text-2xl font-bold mb-6 text-indigo-600 text-center">Edit Profile</h2>
-        {message && <p className="mb-4 text-center text-sm font-semibold text-green-600 bg-green-50 p-2 rounded">{message}</p>}
+      <div className={`max-w-xl mx-auto p-8 rounded-3xl shadow-2xl border mt-6 ${bgCard}`}>
+        <h2 className="text-2xl font-extrabold mb-6 text-indigo-500 text-center tracking-tight">Edit Profile</h2>
+        {message && <p className="mb-4 text-center text-xs font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-xl">{message}</p>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
-            <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full p-2.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-bold mb-1.5">Full Name</label>
+            <input type="text" name="name" value={formData.name} onChange={handleChange} required className={`w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 ${inputStyle}`} />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-xs font-bold text-gray-700 mb-1">University</label>
-            <input type="text" name="university" value={formData.university} onChange={handleChange} required className="w-full p-2.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+          <div>
+            <label className="block text-xs font-bold mb-1.5">University</label>
+            <input type="text" name="university" value={formData.university} onChange={handleChange} required className={`w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 ${inputStyle}`} />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-xs font-bold text-gray-700 mb-1">Bio (Short Description)</label>
-            <textarea name="bio" value={formData.bio} onChange={handleChange} rows="3" className="w-full p-2.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="Tell something about yourself..." />
+          <div>
+            <label className="block text-xs font-bold mb-1.5">Bio (Short Description)</label>
+            <textarea name="bio" value={formData.bio} onChange={handleChange} rows="3" className={`w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 ${inputStyle}`} placeholder="Tell something about yourself..." />
           </div>
 
-          <div className="mb-4">
-            <label className="block text-xs font-bold text-gray-700 mb-1">Skills to Teach (comma separated)</label>
-            <input type="text" name="skillsToTeach" value={formData.skillsToTeach} onChange={handleChange} className="w-full p-2.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="e.g. React, JavaScript, Python" />
+          <div>
+            <label className="block text-xs font-bold mb-1.5">Skills to Teach (comma separated)</label>
+            <input type="text" name="skillsToTeach" value={formData.skillsToTeach} onChange={handleChange} className={`w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 ${inputStyle}`} placeholder="e.g. React, JavaScript, Python" />
           </div>
 
-          <div className="mb-6">
-            <label className="block text-xs font-bold text-gray-700 mb-1">Skills to Learn (comma separated)</label>
-            <input type="text" name="skillsToLearn" value={formData.skillsToLearn} onChange={handleChange} className="w-full p-2.5 border rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="e.g. Node.js, MongoDB" />
+          <div>
+            <label className="block text-xs font-bold mb-1.5">Skills to Learn (comma separated)</label>
+            <input type="text" name="skillsToLearn" value={formData.skillsToLearn} onChange={handleChange} className={`w-full p-3 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 ${inputStyle}`} placeholder="e.g. Node.js, MongoDB" />
           </div>
 
-          <button type="submit" className="w-full bg-indigo-600 text-white py-2.5 rounded hover:bg-indigo-700 font-medium text-sm transition shadow">
+          <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3.5 rounded-xl font-semibold text-sm transition shadow-lg mt-2">
             Save Changes
           </button>
         </form>

@@ -198,15 +198,18 @@ export default function AdminDashboard() {
 
   if (!user) return null;
 
-  const bgMain = isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900";
+  // 👈 ጥርት ብሎ እንዲታይ የተደረጉ የ ከለር ቬርብሎች (Colors)
+  const bgMain = isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
-  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800";
-  const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900";
+  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900";
+  const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
+  const tableTextMain = isDark ? "text-white font-medium" : "text-gray-900 font-medium";
+  const tableTextSub = isDark ? "text-slate-300" : "text-gray-600";
 
   return (
     <div className={`min-h-screen w-full flex flex-col transition-colors duration-200 ${bgMain}`}>
       
-      {/* 👈 1. አናት ላይ (Top Header): Dashboard Link, Theme Switcher, Logout */}
+      {/* Top Header */}
       <div className={`w-full px-6 py-4 shadow-md flex justify-between items-center border-b ${bgCard}`}>
         <div className="flex items-center gap-3">
           <span className="text-xl">🛡️</span>
@@ -229,31 +232,33 @@ export default function AdminDashboard() {
       {/* Main Body (Sidebar + Content) */}
       <div className="flex-1 flex flex-col md:flex-row w-full">
         
-        {/* 👈 2. Sidebar (የጎን ሜኑ - በምስሉ ላይ እንዳሉት አዶዎች እና ርዕሶች) */}
+        {/* Sidebar */}
         <div className={`w-full md:w-64 border-b md:border-b-0 md:border-r p-4 shrink-0 ${bgCard}`}>
           <nav className="space-y-1.5">
-            <button onClick={() => setActiveTab("users")} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center gap-3 ${activeTab === 'users' ? 'bg-indigo-600 text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-300'}`}>
-              👥 Users ({users.length})
-            </button>
-            <button onClick={() => setActiveTab("announcement")} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center gap-3 ${activeTab === 'announcement' ? 'bg-indigo-600 text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-300'}`}>
-              📢 Announcement
-            </button>
-            <button onClick={() => setActiveTab("groups")} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center gap-3 ${activeTab === 'groups' ? 'bg-indigo-600 text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-300'}`}>
-              📚 Study Groups ({groups.length})
-            </button>
-            <button onClick={() => setActiveTab("chats")} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center gap-3 ${activeTab === 'chats' ? 'bg-indigo-600 text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-300'}`}>
-              💬 Group Chats ({messages.length})
-            </button>
-            <button onClick={() => setActiveTab("questions")} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center gap-3 ${activeTab === 'questions' ? 'bg-indigo-600 text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-300'}`}>
-              ❓ Community Q&A ({questions.length})
-            </button>
-            <button onClick={() => setActiveTab("reviews")} className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center gap-3 ${activeTab === 'reviews' ? 'bg-indigo-600 text-white shadow-md' : 'hover:bg-gray-100 dark:hover:bg-slate-800 text-slate-300'}`}>
-              ⭐ Reviews ({reviews.length})
-            </button>
+            {[
+              { id: "users", label: `👥 Users (${users.length})` },
+              { id: "announcement", label: "📢 Announcement" },
+              { id: "groups", label: `📚 Study Groups (${groups.length})` },
+              { id: "chats", label: `💬 Group Chats (${messages.length})` },
+              { id: "questions", label: `❓ Community Q&A (${questions.length})` },
+              { id: "reviews", label: `⭐ Reviews (${reviews.length})` },
+            ].map((tab) => (
+              <button 
+                key={tab.id} 
+                onClick={() => setActiveTab(tab.id)} 
+                className={`w-full text-left px-4 py-3 rounded-xl text-xs font-bold transition flex items-center gap-3 ${
+                  activeTab === tab.id 
+                    ? 'bg-indigo-600 text-white shadow-md' 
+                    : isDark ? 'hover:bg-slate-800 text-slate-200' : 'hover:bg-gray-100 text-gray-700'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </nav>
         </div>
 
-        {/* 3. Right Content Area */}
+        {/* Right Content Area */}
         <div className="flex-1 p-6 sm:p-8 overflow-y-auto">
           
           {/* Stats Cards */}
@@ -288,8 +293,8 @@ export default function AdminDashboard() {
                 <tbody className="divide-y divide-gray-700 text-sm">
                   {users.map((u) => (
                     <tr key={u._id}>
-                      <td className="py-3 px-4 font-semibold">{u.name}</td>
-                      <td className="py-3 px-4 text-gray-400">{u.email}</td>
+                      <td className={`py-3 px-4 ${tableTextMain}`}>{u.name}</td>
+                      <td className={`py-3 px-4 ${tableTextSub}`}>{u.email}</td>
                       <td className="py-3 px-4"><span className="text-xs bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full">{u.role}</span></td>
                       <td className="py-3 px-4 text-right flex justify-end gap-2">
                         {u.role !== 'admin' && (
@@ -326,15 +331,15 @@ export default function AdminDashboard() {
                 <div key={group._id} className={`p-4 border rounded-xl ${bgInnerCard}`}>
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
                     <div>
-                      <h3 className="text-sm font-bold">{group.name}</h3>
-                      <p className="text-xs text-gray-400">{group.description}</p>
+                      <h3 className={`text-sm font-bold ${tableTextMain}`}>{group.name}</h3>
+                      <p className={`text-xs ${tableTextSub}`}>{group.description}</p>
                     </div>
                     <button onClick={() => handleDeleteGroup(group._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete Group</button>
                   </div>
                   <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-700">
                     {group.members?.map((m) => (
                       <div key={m._id || m} className={`flex items-center gap-2 px-3 py-1 rounded-lg text-xs border ${bgCard}`}>
-                        <span>{m.name || "Member"}</span>
+                        <span className={tableTextMain}>{m.name || "Member"}</span>
                         <button onClick={() => handleRemoveMember(group._id, m._id || m)} className="text-rose-400 font-bold">×</button>
                       </div>
                     ))}
@@ -352,7 +357,7 @@ export default function AdminDashboard() {
                 <div key={msg._id} className={`p-4 border rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${bgInnerCard}`}>
                   <div>
                     <p className="text-xs text-indigo-400 font-semibold">Group: {msg.groupId?.name || "General"} | Sender: {msg.sender?.name} ({msg.sender?.email})</p>
-                    <div className="text-sm mt-1" dangerouslySetInnerHTML={{ __html: msg.message }} />
+                    <div className={`text-sm mt-1 ${tableTextMain}`} dangerouslySetInnerHTML={{ __html: msg.message }} />
                   </div>
                   <div className="flex gap-2">
                     <button onClick={() => triggerWarningModal(msg.sender?._id)} className="bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg text-xs">Send Warning</button>
@@ -370,8 +375,8 @@ export default function AdminDashboard() {
               {questions.map((q) => (
                 <div key={q._id} className={`p-4 border rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${bgInnerCard}`}>
                   <div>
-                    <h3 className="text-sm font-bold">{q.title}</h3>
-                    <p className="text-xs text-gray-400 mt-1">{q.content}</p>
+                    <h3 className={`text-sm font-bold ${tableTextMain}`}>{q.title}</h3>
+                    <p className={`text-xs mt-1 ${tableTextSub}`}>{q.content}</p>
                   </div>
                   <button onClick={() => handleDeleteQuestion(q._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete</button>
                 </div>
@@ -387,7 +392,7 @@ export default function AdminDashboard() {
                 <div key={rev._id} className={`p-4 border rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${bgInnerCard}`}>
                   <div>
                     <p className="text-xs text-indigo-400 font-semibold">From: {rev.reviewer?.name} ➔ To: {rev.reviewedUser?.name}</p>
-                    <p className="text-sm mt-1">Rating: ⭐ {rev.rating}/5 | Comment: "{rev.comment}"</p>
+                    <p className={`text-sm mt-1 ${tableTextMain}`}>Rating: ⭐ {rev.rating}/5 | Comment: "{rev.comment}"</p>
                   </div>
                   <button onClick={() => handleDeleteReview(rev._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete</button>
                 </div>

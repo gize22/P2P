@@ -4,15 +4,18 @@ import io from "socket.io-client";
 import API from "../api";
 import Navbar from "../components/Navbar";
 
+const socket = io("http://localhost:5000");
+
 export default function ChatRoom() {
   const { groupId } = useParams();
   const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [groupInfo, setGroupInfo] = useState(null);
-  const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+
+  const isDark = localStorage.getItem("theme") === "dark";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -23,33 +26,43 @@ export default function ChatRoom() {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
 
-    // Socket Connection ማቋቋም
-    const newSocket = io("http://localhost:5000");
-    setSocket(newSocket);
-
     // የ ግሩፕ መረጃ ማምጣት
-    API.get("/groups")
+   API.get(`/chats/group/${groupId}`)
       .then((res) => {
-        const found = res.data.find((g) => g._id === groupId);
-        setGroupInfo(found);
+        console.log("Fetched history messages:", res.data); // 👈 ታሪኩ መምጣቱን እንይ
+        setMessages(res.data);
       })
-      .catch((err) => console.error("Error fetching group info", err));
-
-    // የጥናት ቡድን ቻት ታሪክ (Chat History) ከዳታቤዝ ማምጣት
-    API.get(`/chats/group/${groupId}`)
-      .then((res) => setMessages(res.data))
       .catch((err) => console.error("Error fetching messages", err));
 
-    // ወደ ቻት ሩም መቀላቀል
-    newSocket.emit("join_room", groupId);
+    // 👈 1. ዳታቤዝ ውስጥ የተቀመጡትን የጥናት ቡድን ቻት ታሪክ (Chat History) ማምጣት
+    const fetchMessages = async () => {
+      try {
+        const res = await API.get(`/chats/group/${groupId}`);
+        setMessages(res.data);
+      } catch (err) {
+        console.error("Error fetching messages", err);
+      }
+    };
 
-    // መልእክት ሲመጣ ማዳመጥ (Listen)
-    newSocket.on("receive_message", (data) => {
-      setMessages((prev) => [...prev, data]);
-    });
+    fetchMessages();
+
+    // ወደ ቻት ሩም መቀላቀል
+    socket.emit("join_room", groupId);
+
+    // 👈 2. አዲስ መልእክት ሲመጣ በሪል-ታይም ወደ ስቴት መጨመር
+    const handleReceiveMessage = (data) => {
+      setMessages((prev) => {
+        // ዱፕሊኬት (Duplicate) እንዳይፈጠር ማረጋገጥ
+        const exists = prev.some((msg) => msg._id === data._id);
+        if (exists) return prev;
+        return [...prev, data];
+      });
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
 
     return () => {
-      newSocket.disconnect();
+      socket.off("receive_message", handleReceiveMessage);
     };
   }, [groupId, navigate]);
 
@@ -60,7 +73,7 @@ export default function ChatRoom() {
 
   const sendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !user || !socket) return;
+    if (!newMessage.trim() || !user) return;
 
     const messageData = {
       sender: user.id,
@@ -68,6 +81,7 @@ export default function ChatRoom() {
       message: newMessage,
     };
 
+    // 👈 መልእክቱን ለሰርቨር መላክ (ሰርቨሩ ዳታቤዝ ላይ ሪከርድ አድርጎ ለሁሉም ያደርሰዋል)
     socket.emit("send_message", messageData);
     setNewMessage("");
   };
@@ -75,7 +89,7 @@ export default function ChatRoom() {
   // ምስል ወይም ፋይል ዩፕሎድ ለማድረግ
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
-    if (!file || !user || !socket) return;
+    if (!file || !user) return;
 
     const formData = new FormData();
     formData.append("file", file);
@@ -89,7 +103,7 @@ export default function ChatRoom() {
       const messageData = {
         sender: user.id,
         groupId: groupId,
-        message: `<div class="flex items-center gap-2 bg-gray-50 p-2 rounded border">
+        message: `<div class="flex items-center gap-2 p-2 rounded border">
                     <span>📄</span>
                     <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 font-semibold text-xs hover:text-blue-800">
                       View/Download: ${file.name}
@@ -105,11 +119,15 @@ export default function ChatRoom() {
 
   if (!user) return null;
 
+  const bgMain = isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900";
+  const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
+  const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-400";
+
   return (
-    <div className="min-h-screen bg-[#e7efe9] flex flex-col">
+    <div className={`min-h-screen w-full flex flex-col p-4 sm:p-6 transition-colors duration-200 ${bgMain}`}>
       <Navbar user={user} />
 
-      <div className="max-w-4xl mx-auto w-full flex-1 flex flex-col bg-[#e2f0d9] shadow-lg rounded-xl overflow-hidden my-4 border border-gray-300">
+      <div className={`max-w-4xl mx-auto w-full flex-1 flex flex-col shadow-2xl rounded-2xl overflow-hidden border ${bgCard}`}>
         
         {/* Chat Header */}
         <div className="bg-[#2b5278] text-white p-4 shadow-md">
@@ -118,7 +136,7 @@ export default function ChatRoom() {
         </div>
 
         {/* Messages Box */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-3 h-[450px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5]">
+        <div className="flex-1 p-4 overflow-y-auto space-y-3 h-[450px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5] dark:bg-slate-950">
           {messages.map((msg, index) => {
             const isMe = msg.sender === user.id || msg.sender?._id === user.id;
             const senderName = msg.sender?.name || (isMe ? "You" : "Member");
@@ -138,10 +156,9 @@ export default function ChatRoom() {
         </div>
 
         {/* Message Input Form */}
-        <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-200 flex items-center gap-2">
-          {/* File Upload Button */}
+        <form onSubmit={sendMessage} className={`p-3 border-t flex items-center gap-2 ${bgCard}`}>
           <input type="file" onChange={handleFileUpload} className="hidden" id="groupFileInput" />
-          <label htmlFor="groupFileInput" className="cursor-pointer p-2 text-gray-500 hover:text-indigo-600 text-lg" title="Attach File">
+          <label htmlFor="groupFileInput" className="cursor-pointer p-2 text-gray-400 hover:text-indigo-500 text-lg" title="Attach File">
             📎
           </label>
 
@@ -150,9 +167,9 @@ export default function ChatRoom() {
             placeholder="Type a message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2b5278] text-sm"
+            className={`flex-1 px-4 py-2.5 rounded-full text-sm focus:outline-none border ${inputStyle}`}
           />
-          <button type="submit" className="bg-[#2b5278] text-white px-5 py-2 rounded-full hover:bg-[#1e3a5f] text-sm font-medium shadow">
+          <button type="submit" className="bg-[#2b5278] hover:bg-[#1e3a5f] text-white px-5 py-2.5 rounded-full text-sm font-medium shadow">
             Send
           </button>
         </form>

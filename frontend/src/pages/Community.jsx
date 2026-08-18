@@ -10,11 +10,11 @@ export default function Community() {
   const [content, setContent] = useState("");
   const [tags, setTags] = useState("");
   
-  // የተመረጠው ጥያቄ (ለድሮ መልስ መስጫ እና ለማየት)
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [newAnswer, setNewAnswer] = useState("");
 
+  const isDark = localStorage.getItem("theme") === "dark";
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,19 +83,31 @@ export default function Community() {
 
   if (!user) return null;
 
+  // 👈 የ Dark እና Light ሞድ ትክክለኛ ከለሮች
+  const bgMain = isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900";
+  const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
+  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800";
+  const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
+
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className={`min-h-screen w-full p-4 sm:p-8 transition-colors duration-200 ${bgMain}`}>
       <Navbar user={user} />
 
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Left: Post Question Form */}
-        <div className="bg-white p-6 rounded-lg shadow h-fit border">
-          <h2 className="text-lg font-bold mb-4 text-indigo-600">Ask a Question</h2>
+        <div className={`p-6 rounded-2xl shadow-lg border h-fit ${bgCard}`}>
+          <h2 className="text-lg font-bold mb-4 text-indigo-500">Ask a Question</h2>
           <form onSubmit={handlePostQuestion}>
-            <input type="text" placeholder="Question Title" value={title} onChange={(e) => setTitle(e.target.value)} required className="w-full mb-3 p-2 border rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-            <textarea placeholder="Describe your problem..." value={content} onChange={(e) => setContent(e.target.value)} required rows="4" className="w-full mb-3 p-2 border rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-            <input type="text" placeholder="Tags (comma separated, e.g. React, Node)" value={tags} onChange={(e) => setTags(e.target.value)} className="w-full mb-3 p-2 border rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-            <button type="submit" className="w-full bg-indigo-600 text-white py-2 rounded text-sm hover:bg-indigo-700 font-medium">Post Question</button>
+            <label className="block text-xs font-semibold mb-1">Title</label>
+            <input type="text" placeholder="What's your question?" value={title} onChange={(e) => setTitle(e.target.value)} required className={`w-full mb-3 p-3 border rounded-xl text-sm focus:outline-none ${inputStyle}`} />
+            
+            <label className="block text-xs font-semibold mb-1">Description</label>
+            <textarea placeholder="Describe your problem..." value={content} onChange={(e) => setContent(e.target.value)} required rows="4" className={`w-full mb-3 p-3 border rounded-xl text-sm focus:outline-none ${inputStyle}`} />
+            
+            <label className="block text-xs font-semibold mb-1">Tags (comma separated)</label>
+            <input type="text" placeholder="e.g. React, Node.js" value={tags} onChange={(e) => setTags(e.target.value)} className={`w-full mb-4 p-3 border rounded-xl text-sm focus:outline-none ${inputStyle}`} />
+            
+            <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-xl text-xs font-semibold transition shadow-lg">Post Question</button>
           </form>
         </div>
 
@@ -103,22 +115,22 @@ export default function Community() {
         <div className="md:col-span-2 space-y-4">
           {selectedQuestion ? (
             /* Question Detail & Answers View */
-            <div className="bg-white p-6 rounded-lg shadow border">
-              <button onClick={() => setSelectedQuestion(null)} className="text-xs text-indigo-600 font-bold mb-3 hover:underline">← Back to Questions</button>
-              <h2 className="text-xl font-bold text-gray-800">{selectedQuestion.title}</h2>
+            <div className={`p-6 rounded-2xl shadow-lg border ${bgCard}`}>
+              <button onClick={() => setSelectedQuestion(null)} className="text-xs text-indigo-400 font-bold mb-3 hover:underline">← Back to Questions</button>
+              <h2 className="text-xl font-bold">{selectedQuestion.title}</h2>
               <p className="text-xs text-gray-400 mt-1">Asked by {selectedQuestion.author?.name} ({selectedQuestion.author?.university})</p>
-              <p className="text-sm text-gray-700 mt-4 bg-gray-50 p-3 rounded border">{selectedQuestion.content}</p>
+              <p className={`text-sm mt-4 p-4 rounded-xl border ${bgInnerCard}`}>{selectedQuestion.content}</p>
 
               <div className="mt-6">
-                <h3 className="text-md font-bold text-gray-700 mb-3">Answers ({answers.length})</h3>
+                <h3 className="text-md font-bold mb-3">Answers ({answers.length})</h3>
                 {answers.length === 0 ? (
-                  <p className="text-xs text-gray-500">No answers yet. Be the first to answer!</p>
+                  <p className="text-xs text-gray-400">No answers yet. Be the first to answer!</p>
                 ) : (
                   <div className="space-y-3 mb-6">
                     {answers.map((ans, idx) => (
-                      <div key={idx} className="p-3 bg-gray-50 border rounded text-sm">
-                        <p className="text-gray-800">{ans.content}</p>
-                        <p className="text-[10px] text-gray-400 mt-1">Answered by: {ans.author?.name} ({ans.author?.university})</p>
+                      <div key={idx} className={`p-4 border rounded-xl text-sm ${bgInnerCard}`}>
+                        <p>{ans.content}</p>
+                        <p className="text-[10px] text-gray-400 mt-2">Answered by: {ans.author?.name} ({ans.author?.university})</p>
                       </div>
                     ))}
                   </div>
@@ -126,28 +138,28 @@ export default function Community() {
 
                 {/* Post Answer Form */}
                 <form onSubmit={handlePostAnswer} className="flex gap-2 mt-4">
-                  <input type="text" placeholder="Write an answer..." value={newAnswer} onChange={(e) => setNewAnswer(e.target.value)} className="flex-1 p-2 border rounded text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500" />
-                  <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 font-medium">Answer</button>
+                  <input type="text" placeholder="Write an answer..." value={newAnswer} onChange={(e) => setNewAnswer(e.target.value)} className={`flex-1 p-3 border rounded-xl text-sm focus:outline-none ${inputStyle}`} />
+                  <button type="submit" className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 rounded-xl text-xs font-semibold transition">Answer</button>
                 </form>
               </div>
             </div>
           ) : (
             /* Questions List Feed */
             <div>
-              <h2 className="text-xl font-bold text-gray-700 mb-4">Community Q&A Forum</h2>
+              <h2 className="text-xl font-semibold mb-4">Community Q&A Forum</h2>
               {questions.length === 0 ? (
-                <p className="text-gray-500">No questions posted yet.</p>
+                <p className="text-gray-400 text-sm">No questions posted yet.</p>
               ) : (
                 <div className="space-y-3">
                   {questions.map((q) => (
-                    <div key={q._id} onClick={() => handleSelectQuestion(q)} className="p-4 bg-white rounded-lg shadow border cursor-pointer hover:border-indigo-400 transition">
-                      <h3 className="text-md font-bold text-gray-800">{q.title}</h3>
-                      <p className="text-xs text-gray-600 mt-1 line-clamp-2">{q.content}</p>
+                    <div key={q._id} onClick={() => handleSelectQuestion(q)} className={`p-5 rounded-2xl shadow-lg border cursor-pointer hover:border-indigo-500 transition ${bgCard}`}>
+                      <h3 className="text-base font-bold">{q.title}</h3>
+                      <p className="text-xs text-gray-400 mt-1 line-clamp-2">{q.content}</p>
                       <div className="flex justify-between items-center mt-3">
-                        <span className="text-[10px] text-gray-400">By {q.author?.name}</span>
+                        <span className="text-[11px] text-indigo-400">By {q.author?.name}</span>
                         <div className="flex gap-1">
                           {q.tags?.map((t, i) => (
-                            <span key={i} className="text-[10px] bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded">{t}</span>
+                            <span key={i} className="text-[10px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded">{t}</span>
                           ))}
                         </div>
                       </div>
