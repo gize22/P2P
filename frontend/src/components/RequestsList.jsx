@@ -7,7 +7,7 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
   return (
     <div className="space-y-6 max-w-6xl mx-auto mb-8">
       {/* Learning Requests */}
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-6 rounded-2xl shadow-lg transition-colors duration-200">
+      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-6 rounded-2xl shadow-lg">
         <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Learning Requests & Connections</h2>
         {myRequests.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-slate-400">No requests found.</p>
@@ -16,6 +16,7 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
             {myRequests.map((req) => {
               const otherUser = req.isReceiver ? req.sender : req.receiver;
               const otherUserId = otherUser?._id;
+              const isRead = localStorage.getItem(`read_${otherUserId}`) === "true";
 
               return (
                 <div key={req._id} className="p-4 border border-gray-200 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-gray-50 dark:bg-slate-950/50">
@@ -46,9 +47,17 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
                       <div className="flex gap-2">
                         <button onClick={() => onOpenSessionModal(req)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs">Schedule Session</button>
                         {otherUserId && (
-                          <button onClick={() => navigate(`/private-chat/${otherUserId}`)} className="relative bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 shadow-xs">
-                            <span>Direct Chat</span>
-                            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                          <button 
+                            onClick={() => {
+                              localStorage.setItem(`read_${otherUserId}`, "true");
+                              navigate(`/private-chat/${otherUserId}`);
+                            }} 
+                            className="relative bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+                          >
+                            <span>Direct Chatt</span>
+                            {/* {!isRead && (
+                              // <span className="w-2.5 h-2.5 rounded-full bg-rose-500 absolute -top-1 -right-1"></span>
+                            )} */}
                           </button>
                         )}
                       </div>
@@ -62,7 +71,7 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
       </div>
 
       {/* My Sessions */}
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-6 rounded-2xl shadow-lg transition-colors duration-200">
+      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 p-6 rounded-2xl shadow-lg">
         <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">My Learning Sessions</h2>
         {mySessions.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-slate-400">No scheduled sessions.</p>

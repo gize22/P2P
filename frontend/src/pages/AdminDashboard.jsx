@@ -362,6 +362,10 @@ export default function AdminDashboard() {
                   <div className="flex gap-2">
                     <button onClick={() => triggerWarningModal(msg.sender?._id)} className="bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg text-xs">Send Warning</button>
                     <button onClick={() => handleDeleteMessage(msg._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete</button>
+                     <button onClick={() => navigate(`/private-chat/${otherUserId}`)} className="bg-teal-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1">
+                            <span>Direct Chat</span>
+                            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
+                          </button>
                   </div>
                 </div>
               ))}

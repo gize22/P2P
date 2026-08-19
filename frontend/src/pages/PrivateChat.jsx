@@ -34,27 +34,33 @@ export default function PrivateChat() {
 
     const roomId = getRoomId(parsedUser.id, receiverId);
 
-    // የቻት ታሪክ ማምጣት እና ወዲያውኑ Seen ማድረጊያ ሶኬት መላክ
+    // የቻት ታሪክ ማምጣት
     API.get(`/chats/${parsedUser.id}/${receiverId}`)
       .then((res) => {
         setMessages(res.data);
-        // 👈 b (receiverId) ቻቱን ከፈተው ማለት አቤቤ (receiverId) የላካቸውን መልእክቶች አነበባቸው ማለት ነው
         socket.emit("mark_messages_read", { sender: receiverId, receiver: parsedUser.id });
       })
       .catch((err) => console.error("Error fetching private messages", err));
 
+    // 👈 የሁለቱንም ሩም እና የዩሰሩን ራሱ ID ጆይን ማድረግ (ለ ኖቲፊኬሽን)
     socket.emit("join_room", roomId);
+    socket.emit("join_room", parsedUser.id);
 
-    // አዲስ መልእክት ሲመጣ
-    socket.on("receive_message", (data) => {
-      setMessages((prev) => [...prev, data]);
-      // መልእክቱ የመጣው ከሌላኛው ዩሰር ከሆነ እና አሁን ቻት ሩሙ ውስጥ ከንል, ወዲያውኑ Mark Read እናደርጋለን
-      if (data.sender === receiverId) {
+    // 👈 ሪል-ታይም መልእክት ሲመጣ ያለ ሪፍሬሽ በሰከንዶች ውስጥ Screen ላይ እንዲታይ
+    const handleReceiveMessage = (data) => {
+      // መልእክቱ የዚህ ቻት ሩም ከሆነ ብቻ ወደ ስቴት መጨመር
+      if (data.sender === receiverId || data.receiver === receiverId) {
+        setMessages((prev) => {
+          const exists = prev.some((msg) => msg._id === data._id);
+          if (exists) return prev;
+          return [...prev, data];
+        });
         socket.emit("mark_messages_read", { sender: receiverId, receiver: parsedUser.id });
       }
-    });
+    };
 
-    // 👈 ላኪው (a) ይህንን እያዳመጠ ሳለ፣ ተቀባዩ (b) መልእክቱን ሲያነብ የቲኮቹ ከለር ወደ ሰማያዊ ይቀየራል
+    socket.on("receive_message", handleReceiveMessage);
+
     socket.on("messages_read", ({ reader }) => {
       if (reader === receiverId) {
         setMessages((prev) => prev.map(msg => ({ ...msg, read: true })));
@@ -62,11 +68,10 @@ export default function PrivateChat() {
     });
 
     return () => {
-      socket.off("receive_message");
+      socket.off("receive_message", handleReceiveMessage);
       socket.off("messages_read");
     };
   }, [receiverId, navigate]);
-
   // አዲስ መልእክት ሲመጣ ወደታች SCROLL እንዲያደርግ
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
