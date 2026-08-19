@@ -45,7 +45,7 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
 
                     {req.status === "accepted" && (
                       <div className="flex gap-2">
-                        <button onClick={() => onOpenSessionModal(req)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs">Schedule Session</button>
+                        <button onClick={() => onOpenSessionModal(req)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs">Schedule Sessioneeee</button>
                         {otherUserId && (
                           <button 
                             onClick={() => {

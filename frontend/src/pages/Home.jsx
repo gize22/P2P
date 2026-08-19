@@ -40,7 +40,7 @@ export default function Home() {
           <div className="flex items-center gap-3">
             <div className="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white p-2.5 rounded-xl font-bold text-base shadow-md shadow-indigo-500/20">P2P</div>
             <span className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              P2P <span className="text-indigo-600 dark:text-indigo-400">Learn</span>
+              P2P<span className="text-indigo-600 dark:text-indigo-400">Learn</span>
             </span>
           </div>
 
