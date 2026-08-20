@@ -5,7 +5,6 @@ require("dotenv").config();
 
 async function createAdmin() {
   try {
-    // ከ MongoDB Atlas ጋር መገናኘት
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB for seeding admin...");
 
@@ -17,21 +16,22 @@ async function createAdmin() {
       process.exit(1);
     }
 
-    // አድሚኑ ቀድሞውኑ በዳታቤዝ ውስጥ መኖሩን ማረጋገጥ
+    // ፓስወርዱን አዲስ በሆነ ሐሽ ማመስጠር
+    const hashedPassword = await bcrypt.hash(adminPassword, 10);
+
     const existingAdmin = await User.findOne({ email: adminEmail });
 
     if (existingAdmin) {
+      // 👈 አድሚኑ ከነበረ ሮሉን፣ ቬሪፊኬሽኑን እና ፓስወርዱን 100% ከ .env ጋር እናመሳስለዋለን
       existingAdmin.role = "admin";
       existingAdmin.isVerified = true;
+      existingAdmin.password = hashedPassword;
       await existingAdmin.save();
-      console.log("Admin user already exists! Role successfully updated to 'admin'.");
+      console.log("Admin user already exists. Password & role successfully updated from .env!");
       process.exit(0);
     }
 
-    // ፓስወርዱን በደህንነት (Hash) ማመስጠር
-    const hashedPassword = await bcrypt.hash(adminPassword, 10);
-
-    // አዲስ Super Admin መፍጠር
+    // አዲስ አድሚን መፍጠር
     await User.create({
       name: "System Administrator",
       email: adminEmail,

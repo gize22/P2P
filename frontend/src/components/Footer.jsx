@@ -33,13 +33,13 @@ export default function Footer() {
           <h4 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Contact Us</h4>
           <ul className="space-y-2.5 text-xs text-slate-400">
             <li className="flex items-center gap-2">
-              <span>📍</span> Addis Ababa, Ethiopia
+              <span>📍</span> tulu Awuliya , Ethiopia
             </li>
             <li className="flex items-center gap-2">
-              <span>📧</span> support@p2plearn.com
+              <span>📧</span>gizachewkassa22@gmail.com
             </li>
             <li className="flex items-center gap-2">
-              <span>📞</span> +251 912 345 678
+              <span>📞</span> +251 957837318
             </li>
           </ul>
         </div>
@@ -49,7 +49,7 @@ export default function Footer() {
           <h4 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Stay Connected</h4>
           <p className="text-xs text-slate-400 mb-3">Join our community updates and learning tips.</p>
           <div className="flex gap-3 text-lg">
-            <a href="#social" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition">🌐</a>
+            <a href="" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition">🌐</a>
             <a href="#social" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition">💬</a>
             <a href="#social" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition">🔗</a>
           </div>

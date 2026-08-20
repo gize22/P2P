@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-
+import API from "../api";
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -150,7 +150,46 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-    
+    {/* Get in Touch / Contact Section */}
+      <section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}`}>
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold uppercase tracking-wider border border-indigo-500/20">Get in Touch</span>
+          <h2 className="text-3xl font-extrabold mt-4 mb-3 tracking-tight">Have Questions or Feedback?</h2>
+          <p className="text-gray-400 text-sm mb-10 max-w-lg mx-auto">We'd love to hear from you. Send us a message and our team will get back to you shortly.</p>
+
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const data = { name: form.name.value, email: form.email.value, message: form.message.value };
+            try {
+              console.log("Sending contact data:", data); // 👈 ዴታው መላኩን በኮንሶል ለማየት
+              // 👈 ከ Backend API ጋር መገናኘት
+              const res = await API.post("/contact", data);
+              alert(res.data.message);
+              form.reset();
+            } catch (err) {
+              console.error("Contact error response:", err.response); // 👈 ኤረሩን በግልጽ ለማየት
+              alert(err.response?.data?.message || "Failed to send message.");
+            }
+          }} className="space-y-4 text-left max-w-xl mx-auto">
+            <div>
+              <label className="block text-xs font-semibold mb-1">Your Name</label>
+              <input type="text" name="name" placeholder="Abebe Kassa" required className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1">Email Address</label>
+              <input type="email" name="email" placeholder="name@example.com" required className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-gray-900 mb-1">Message</label>
+              <textarea name="message" placeholder="Type your message here..." required rows="4" className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} />
+            </div>
+            <button type="submit" className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg text-sm">
+              Send Message
+            </button>
+          </form>
+        </div>
+      </section>
      <Footer />
     </div>
   );
