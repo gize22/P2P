@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Logo from "./Logo"; //
 
 export default function Navbar({ user }) {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export default function Navbar({ user }) {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-base sm:text-lg font-bold flex items-center gap-2">
+             <Logo />
             <span>👋</span> {user.name}
           </h1>
           <p className={`text-[11px] sm:text-xs mt-0.5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`}>

@@ -45,7 +45,9 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
 
                     {req.status === "accepted" && (
                       <div className="flex gap-2">
-                        <button onClick={() => onOpenSessionModal(req)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs">Schedule Sessioneeee</button>
+                        {/* 👈 ትክክለኛው ጽሁፍ: Schedule Session */}
+                        <button onClick={() => onOpenSessionModal(req)} className="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs">Schedule Session</button>
+                        
                         {otherUserId && (
                           <button 
                             onClick={() => {
@@ -54,10 +56,8 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
                             }} 
                             className="relative bg-teal-600 hover:bg-teal-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-xs"
                           >
-                            <span>Direct Chatt</span>
-                            {/* {!isRead && (
-                              // <span className="w-2.5 h-2.5 rounded-full bg-rose-500 absolute -top-1 -right-1"></span>
-                            )} */}
+                            {/* 👈 ትክክለኛው ጽሁፍ: Direct Chat */}
+                            <span>Direct Chat</span>
                           </button>
                         )}
                       </div>
@@ -78,13 +78,23 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
         ) : (
           <div className="space-y-3">
             {mySessions.map((session) => (
-              <div key={session._id} className="p-4 border border-indigo-100 dark:border-slate-800 rounded-xl flex justify-between items-center bg-indigo-50/50 dark:bg-slate-950/50">
+              <div key={session._id} className="p-4 border border-indigo-100 dark:border-slate-800 rounded-xl flex flex-col sm:flex-row justify-between items-center gap-3 bg-indigo-50/50 dark:bg-slate-950/50">
                 <div>
                   <p className="text-sm font-bold text-indigo-900 dark:text-indigo-400">Topic: {session.skill}</p>
                   <p className="text-xs text-gray-700 dark:text-slate-300">Teacher: {session.teacher?.name} | Learner: {session.learner?.name}</p>
                   <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">📅 Date: {session.date} | ⏰ Time: {session.time}</p>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-100 dark:bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 px-2.5 py-1 rounded-full">{session.status}</span>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-100 dark:bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/20 px-2.5 py-1 rounded-full">{session.status}</span>
+                  
+                  {/* 👈 ሪቪው መስጫ በተን (ስቴተሱ completed ሲሆን ብቻ ይታያል) */}
+                  {session.status === "completed" && onOpenSessionModal && (
+                    <button onClick={() => onOpenSessionModal(session)} className="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold shadow-xs">
+                      Leave Review ⭐
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>

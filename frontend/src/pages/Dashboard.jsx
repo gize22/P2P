@@ -22,6 +22,12 @@ export default function Dashboard() {
   const [sessionTime, setSessionTime] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Review Modal States
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedSessionForReview, setSelectedSessionForReview] = useState(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState("");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -173,6 +179,46 @@ export default function Dashboard() {
     }
   };
 
+  // 👈 ሴክሽኑን እንደተጠናቀቀ (Completed) ማድረጊያ ተግባር
+  const handleCompleteSession = async (sessionId) => {
+    try {
+      await API.put(`/sessions/${sessionId}`, { status: "completed" });
+      alert("Session marked as completed successfully!");
+      fetchMySessions(user.id);
+    } catch (err) {
+      alert("Failed to complete session");
+    }
+  };
+
+  const openReviewModal = (session) => {
+    setSelectedSessionForReview(session);
+    setShowReviewModal(true);
+  };
+
+  const handleSubmitReview = async (e) => {
+    e.preventDefault();
+    try {
+      const reviewedUserId = selectedSessionForReview.teacher._id === user.id 
+        ? selectedSessionForReview.learner._id 
+        : selectedSessionForReview.teacher._id;
+
+      await API.post("/reviews", {
+        reviewer: user.id,
+        reviewedUser: reviewedUserId,
+        session: selectedSessionForReview._id,
+        rating: Number(rating),
+        comment
+      });
+
+      alert("Review submitted successfully!");
+      setShowReviewModal(false);
+      setComment("");
+      setRating(5);
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to submit review");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.clear();
     navigate("/login");
@@ -180,10 +226,9 @@ export default function Dashboard() {
 
   if (!user) return null;
 
-  // 👈 ልክ እንደ አድሚን ፓነል የተስተካከሉ የ ከለር ስታይሎች
   const bgMain = isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
-  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-800";
+  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800";
   const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
 
   return (
@@ -191,9 +236,16 @@ export default function Dashboard() {
       
       {/* Navbar (Header) */}
       <div className={`w-full p-4 sm:p-6 rounded-2xl shadow-xl flex justify-between items-center mb-8 border ${bgCard}`}>
-        <div>
-          <h1 className="text-base sm:text-lg font-bold flex items-center gap-2"><span>👋</span> {user.name}</h1>
-          <p className="text-[11px] sm:text-xs text-indigo-400 mt-0.5">{user.university} | Role: <span className="uppercase font-semibold">{user.role}</span></p>
+        <div className="flex items-center gap-3">
+          <img 
+            src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} 
+            alt="Avatar" 
+            className="w-11 h-11 rounded-full bg-indigo-50 border-2 border-indigo-500/30 shadow-sm object-cover"
+          />
+          <div>
+            <h1 className="text-base sm:text-lg font-bold flex items-center gap-2">{user.name}</h1>
+            <p className="text-[11px] sm:text-xs text-indigo-400 mt-0.5">{user.university} | Role: <span className="uppercase font-semibold">{user.role}</span></p>
+          </div>
         </div>
 
         {/* Desktop Links */}
@@ -292,7 +344,6 @@ export default function Dashboard() {
                         {otherUserId && (
                           <button onClick={() => navigate(`/private-chat/${otherUserId}`)} className="bg-teal-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1">
                             <span>Direct Chat</span>
-                            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
                           </button>
                         )}
                       </div>
@@ -319,7 +370,24 @@ export default function Dashboard() {
                   <p className="text-xs text-gray-300">Teacher: {session.teacher?.name} | Learner: {session.learner?.name}</p>
                   <p className="text-xs text-gray-400 mt-1">📅 Date: {session.date} | ⏰ Time: {session.time}</p>
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-300 px-2.5 py-1 rounded-full">{session.status}</span>
+                
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-indigo-500/10 text-indigo-300 px-2.5 py-1 rounded-full">{session.status}</span>
+                  
+                  {/* 👈 ሴክሽኑ scheduled ከሆነ Complete Session በተን ይታያል */}
+                  {session.status === "scheduled" && (
+                    <button onClick={() => handleCompleteSession(session._id)} className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition">
+                      Complete Session ✓
+                    </button>
+                  )}
+
+                  {/* 👈 ሴክሽኑ completed ከደረሰ ሪቪው መስጫው ይመጣል። */}
+                  {session.status === "completed" && (
+                    <button onClick={() => openReviewModal(session)} className="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition">
+                      Leave Review ⭐
+                    </button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -378,6 +446,34 @@ export default function Dashboard() {
           </form>
         </div>
       )}
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4">
+          <form onSubmit={handleSubmitReview} className={`border p-6 rounded-3xl shadow-2xl w-full max-w-md ${bgCard}`}>
+            <h3 className="text-lg font-bold mb-2 text-amber-500">⭐ Rate & Review Session</h3>
+            <p className="text-xs text-gray-400 mb-4">Share your experience with your learning partner.</p>
+            
+            <label className="block text-xs font-semibold mb-1">Rating (1 to 5 Stars)</label>
+            <select value={rating} onChange={(e) => setRating(e.target.value)} className={`w-full mb-3 p-3 border rounded-xl text-sm ${inputStyle}`}>
+              <option value="5" className="bg-slate-900 text-white">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+              <option value="4" className="bg-slate-900 text-white">⭐⭐⭐⭐ (4 - Very Good)</option>
+              <option value="3" className="bg-slate-900 text-white">⭐⭐⭐ (3 - Good)</option>
+              <option value="2" className="bg-slate-900 text-white">⭐⭐ (2 - Fair)</option>
+              <option value="1" className="bg-slate-900 text-white">⭐ (1 - Poor)</option>
+            </select>
+
+            <label className="block text-xs font-semibold mb-1">Comment</label>
+            <textarea placeholder="Write your feedback..." value={comment} onChange={(e) => setComment(e.target.value)} required rows="3" className={`w-full mb-4 p-3 border rounded-xl text-sm ${inputStyle}`} />
+
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowReviewModal(false)} className="bg-gray-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Cancel</button>
+              <button type="submit" className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Submit Review</button>
+            </div>
+          </form>
+        </div>
+      )}
+
     </div>
   );
 }

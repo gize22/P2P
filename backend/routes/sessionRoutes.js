@@ -46,10 +46,10 @@ router.get("/user/:userId", async (req, res) => {
   }
 });
 
-// 3. UPDATE SESSION STATUS (ለምሳሌ completed ማድረግ)
+// UPDATE SESSION STATUS (ለምሳሌ completed ማድረግ)
 router.put("/:id", async (req, res) => {
   try {
-    const { status } = req.body; // scheduled, completed, cancelled
+    const { status } = req.body; // completed መሆን አለበት
 
     const updatedSession = await Session.findByIdAndUpdate(
       req.params.id,
@@ -62,7 +62,7 @@ router.put("/:id", async (req, res) => {
     }
 
     res.status(200).json({
-      message: "Session status updated",
+      message: "Session status updated successfully",
       session: updatedSession
     });
   } catch (error) {

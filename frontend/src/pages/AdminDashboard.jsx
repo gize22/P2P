@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import API from "../api";
+import io from "socket.io-client";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function AdminDashboard() {
@@ -18,10 +19,23 @@ export default function AdminDashboard() {
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [targetStudentId, setTargetStudentId] = useState(null);
   const [warningText, setWarningText] = useState("");
+  const [contactMessages, setContactMessages] = useState([]);
 
   const navigate = useNavigate();
+  const socket = io("http://localhost:5000");
 
   useEffect(() => {
+    const fetchContactMessages = async () => {
+      try {
+        const contactRes = await API.get("/contact");
+        setContactMessages(contactRes.data);
+      } catch (err) {
+        console.error("Error fetching contact messages", err);
+      }
+    };
+
+    fetchContactMessages();
+
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       navigate("/login");
@@ -198,10 +212,9 @@ export default function AdminDashboard() {
 
   if (!user) return null;
 
-  // 👈 ጥርት ብሎ እንዲታይ የተደረጉ የ ከለር ቬርብሎች (Colors)
   const bgMain = isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
-  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-900";
+  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-800";
   const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
   const tableTextMain = isDark ? "text-white font-medium" : "text-gray-900 font-medium";
   const tableTextSub = isDark ? "text-slate-300" : "text-gray-600";
@@ -212,7 +225,7 @@ export default function AdminDashboard() {
       {/* Top Header */}
       <div className={`w-full px-6 py-4 shadow-md flex justify-between items-center border-b ${bgCard}`}>
         <div className="flex items-center gap-3">
-          <span className="text-xl">🛡️</span>
+          <span className="text-xl">💎</span>
           <div>
             <h1 className="text-base font-extrabold tracking-tight">Admin Control Panel</h1>
             <p className="text-[11px] text-indigo-400">Administrator: {user.name}</p>
@@ -362,10 +375,6 @@ export default function AdminDashboard() {
                   <div className="flex gap-2">
                     <button onClick={() => triggerWarningModal(msg.sender?._id)} className="bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg text-xs">Send Warning</button>
                     <button onClick={() => handleDeleteMessage(msg._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete</button>
-                     <button onClick={() => navigate(`/private-chat/${otherUserId}`)} className="bg-teal-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1">
-                            <span>Direct Chat</span>
-                            <span className="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span>
-                          </button>
                   </div>
                 </div>
               ))}

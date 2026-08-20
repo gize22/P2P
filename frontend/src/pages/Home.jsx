@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import API from "../api";
+import Logo from "../components/Logo";
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -37,12 +38,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
           
           {/* Logo */}
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white p-2.5 rounded-xl font-bold text-base shadow-md shadow-indigo-500/20">P2P</div>
-            <span className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              P2P<span className="text-indigo-600 dark:text-indigo-400">Learn</span>
-            </span>
-          </div>
+          <Logo />
 
           {/* Desktop Nav Links */}
           {/* Home.jsx ውስጥ ያሉት ናቭባር ሊንኮች እንደዚህ መሆን አለባቸው */}
