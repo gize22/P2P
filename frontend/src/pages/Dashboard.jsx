@@ -17,7 +17,9 @@ export default function Dashboard() {
   const [myRequests, setMyRequests] = useState([]);
   const [mySessions, setMySessions] = useState([]);
   const [announcements, setAnnouncements] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [searchSkill, setSearchSkill] = useState("");
   
   const [showSessionModal, setShowSessionModal] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -43,6 +45,7 @@ export default function Dashboard() {
       fetchMyRequests(parsedUser.id);
       fetchMySessions(parsedUser.id);
       fetchAnnouncements();
+      fetchRecommendations(parsedUser.id); // 👈 ትክክለኛው የ ዩሰር ID እዚህ ጋር ተጠርቷል
 
       socket.emit("join_room", parsedUser.id);
 
@@ -66,6 +69,15 @@ export default function Dashboard() {
       socket.off("receive_announcement");
     };
   }, [navigate]);
+
+  const fetchRecommendations = async (userId) => {
+    try {
+      const res = await API.get(`/users/recommendations/${userId}`);
+      setRecommendations(res.data);
+    } catch (err) {
+      console.error("Error fetching recommendations", err);
+    }
+  };
 
   const fetchAllLearners = async (currentUserId, skill = "") => {
     try {
@@ -180,7 +192,6 @@ export default function Dashboard() {
     setShowReviewModal(true);
   };
 
-  // 👈 Review ሲሰጥ ዳታቤዝ ላይ ሪከርድ አድርጎ ሰክሽኑን የሚያጠፋው ትክክለኛ ሎጂክ
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     try {
@@ -188,7 +199,6 @@ export default function Dashboard() {
         ? selectedSessionForReview.learner._id 
         : selectedSessionForReview.teacher._id;
 
-      // 1. ሪቪው ብቻ ዳታቤዝ ውስጥ መመዝገብ (ሰክሽኑን ማንካት/ማጥፋት የለም)
       await API.post("/reviews", {
         reviewer: user.id,
         reviewedUser: reviewedUserId,
@@ -201,21 +211,16 @@ export default function Dashboard() {
       setShowReviewModal(false);
       setComment("");
       setRating(5);
-      
-      // ዴታውን ሪፍሬሽ ማድረግ
-      fetchMySessions(user.id);
     } catch (err) {
-      console.error("REVIEW ERROR:", err);
       alert(err.response?.data?.message || "Failed to submit review");
     }
   };
 
-  
   if (!user) return null;
 
   const bgMain = isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
-  // 👈 የ Input ከለር በ Dark Mode ሰዓት ጥርት ብሎ እንዲታይ (ነጭ ባክግራውንድ መጥፋቱ)
+  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800";
   const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
 
   return (
@@ -229,6 +234,33 @@ export default function Dashboard() {
           <div>
             <h3 className="font-bold text-sm uppercase tracking-wide">Platform Announcement</h3>
             <p className="text-xs mt-1 text-amber-100">{announcements[0].message}</p>
+          </div>
+        </div>
+      )}
+
+      {/* ✨ Recommended Learning Partners (Smart Matching Section) */}
+      {recommendations.length > 0 && (
+        <div className={`w-full p-6 rounded-2xl shadow-lg mb-8 border ${bgCard}`}>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xl">✨</span>
+            <h2 className="text-lg font-bold text-indigo-400">Recommended Learning Partners (Smart Match)</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {recommendations.map((partner) => (
+              <div key={partner._id} className={`p-4 border rounded-xl flex flex-col justify-between ${bgInnerCard}`}>
+                <div>
+                  <h3 className="text-sm font-bold">{partner.name}</h3>
+                  <p className="text-xs text-indigo-400 font-medium">{partner.university}</p>
+                  <p className="text-xs mt-2"><strong>Can Teach:</strong> <span className="text-emerald-400">{partner.skillsToTeach?.join(", ")}</span></p>
+                  <p className="text-xs text-gray-400 mt-1">Matched based on your learning goals!</p>
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button onClick={() => handleSendRequest(partner._id, partner.skillsToTeach?.[0])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition">
+                    Connect & Request
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}

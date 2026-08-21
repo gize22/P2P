@@ -80,5 +80,34 @@ router.get("/announcements", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+// 4. // GET RECOMMENDED LEARNING PARTNERS (Smart Matching API - Case Insensitive)
+router.get("/recommendations/:userId", async (req, res) => {
+  try {
+    const currentUser = await User.findById(req.params.userId);
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const skillsToLearn = currentUser.skillsToLearn || [];
+    if (skillsToLearn.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // 👈 ፊደል (Uppercase/Lowercase) ቢለያይም ራሱ አወዳድሮ እንዲያመጣ (Regex matching)
+    const regexSkills = skillsToLearn.map(skill => new RegExp(`^${skill.trim()}$`, "i"));
+
+    const recommendedUsers = await User.find({
+      _id: { $ne: currentUser._id },
+      skillsToTeach: { $in: regexSkills }
+    }).select("-password");
+
+    console.log("Smart Match Found for", currentUser.name, ":", recommendedUsers.length, "partners");
+
+    res.status(200).json(recommendedUsers);
+  } catch (error) {
+    console.error("RECOMMENDATION ERROR:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
 
 module.exports = router;
