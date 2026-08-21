@@ -2,8 +2,12 @@ import React, { useEffect, useState } from "react";
 import API from "../api";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../ThemeContext";
 
 export default function Profile() {
+
+  const { isDark } = useTheme();
+
   const [user, setUser] = useState(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -13,8 +17,6 @@ export default function Profile() {
     skillsToLearn: "",
   });
   const [message, setMessage] = useState("");
-  
-  const isDark = localStorage.getItem("theme") === "dark";
   const navigate = useNavigate();
 
   useEffect(() => {

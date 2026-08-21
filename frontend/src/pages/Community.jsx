@@ -2,8 +2,14 @@ import React, { useEffect, useState } from "react";
 import API from "../api";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../ThemeContext";
+
+
 
 export default function Community() {
+
+  const { isDark } = useTheme();
+
   const [user, setUser] = useState(null);
   const [questions, setQuestions] = useState([]);
   const [title, setTitle] = useState("");
@@ -13,8 +19,6 @@ export default function Community() {
   const [selectedQuestion, setSelectedQuestion] = useState(null);
   const [answers, setAnswers] = useState([]);
   const [newAnswer, setNewAnswer] = useState("");
-
-  const isDark = localStorage.getItem("theme") === "dark";
   const navigate = useNavigate();
 
   useEffect(() => {

@@ -2,15 +2,18 @@ import React, { useEffect, useState } from "react";
 import API from "../api";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../ThemeContext";
+
 
 export default function Groups() {
+  
+   const { isDark } = useTheme();
   const [user, setUser] = useState(null);
   const [groups, setGroups] = useState([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [skill, setSkill] = useState("");
   
-  const isDark = localStorage.getItem("theme") === "dark";
   const navigate = useNavigate();
 
   useEffect(() => {

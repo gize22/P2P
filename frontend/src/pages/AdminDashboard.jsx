@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import API from "../api";
-import io from "socket.io-client";
 import { useNavigate, Link } from "react-router-dom";
 
 export default function AdminDashboard() {
@@ -13,29 +12,17 @@ export default function AdminDashboard() {
   const [reviews, setReviews] = useState([]);
   const [activeTab, setActiveTab] = useState("users");
   
-  const isDark = localStorage.getItem("theme") === "dark";
+  // 👈 የ ቲም ሁኔታን ከ localStorage በቀጥታ ማንበብ
+  const [isDark, setIsDark] = useState(localStorage.getItem("theme") === "dark");
 
   const [announcementText, setAnnouncementText] = useState("");
   const [showWarningModal, setShowWarningModal] = useState(false);
   const [targetStudentId, setTargetStudentId] = useState(null);
   const [warningText, setWarningText] = useState("");
-  const [contactMessages, setContactMessages] = useState([]);
 
   const navigate = useNavigate();
-  const socket = io("http://localhost:5000");
 
   useEffect(() => {
-    const fetchContactMessages = async () => {
-      try {
-        const contactRes = await API.get("/contact");
-        setContactMessages(contactRes.data);
-      } catch (err) {
-        console.error("Error fetching contact messages", err);
-      }
-    };
-
-    fetchContactMessages();
-
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       navigate("/login");
@@ -52,14 +39,9 @@ export default function AdminDashboard() {
   }, [navigate]);
 
   const toggleTheme = () => {
-    if (isDark) {
-      localStorage.setItem("theme", "light");
-      document.documentElement.classList.remove("dark");
-    } else {
-      localStorage.setItem("theme", "dark");
-      document.documentElement.classList.add("dark");
-    }
-    window.location.reload();
+    const newTheme = isDark ? "light" : "dark";
+    localStorage.setItem("theme", newTheme);
+    setIsDark(!isDark);
   };
 
   const fetchAllAdminData = async () => {
@@ -212,6 +194,7 @@ export default function AdminDashboard() {
 
   if (!user) return null;
 
+  // 👈 በቀጥታ በ isDark ስቴት የሚቀያየሩ ከለሮች
   const bgMain = isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
   const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-800";
@@ -225,7 +208,7 @@ export default function AdminDashboard() {
       {/* Top Header */}
       <div className={`w-full px-6 py-4 shadow-md flex justify-between items-center border-b ${bgCard}`}>
         <div className="flex items-center gap-3">
-          <span className="text-xl">💎</span>
+          <span className="text-xl">🛡️</span>
           <div>
             <h1 className="text-base font-extrabold tracking-tight">Admin Control Panel</h1>
             <p className="text-[11px] text-indigo-400">Administrator: {user.name}</p>
