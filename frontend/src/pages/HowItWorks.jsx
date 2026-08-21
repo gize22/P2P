@@ -34,7 +34,7 @@ export default function HowItWorks() {
       <nav className={`w-full border-b backdrop-blur-md sticky top-0 z-50 transition-colors duration-200 ${darkMode ? "bg-slate-950/90 border-slate-800" : "bg-white/90 border-gray-200"}`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white p-2.5 rounded-xl font-bold text-base shadow-md">P2Pl</div>
+            <div className="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white p-2.5 rounded-xl font-bold text-base shadow-md">P2Plearn</div>
             <span className="text-xl font-extrabold tracking-tight">P2P <span className="text-indigo-500">Learn</span></span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
