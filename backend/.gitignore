@@ -1,0 +1,13 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+dist/
+build/
+
+*.log
+backend/uploads/
+.env
+backend/.env
+frontend/.env
