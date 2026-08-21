@@ -5,12 +5,11 @@ import Navbar from "../components/Navbar";
 import RequestsList from "../components/RequestsList";
 import FindLearners from "../components/FindLearners";
 import io from "socket.io-client";
-import { useTheme } from "../ThemeContext"; // 👈 Hook ን እዚህ ጋር እናመጣለን
+import { useTheme } from "../ThemeContext";
 
 const socket = io("http://localhost:5000");
 
 export default function Dashboard() {
-
   const { isDark } = useTheme();
 
   const [user, setUser] = useState(null);
@@ -181,6 +180,7 @@ export default function Dashboard() {
     setShowReviewModal(true);
   };
 
+  // 👈 Review ሲሰጥ ዳታቤዝ ላይ ሪከርድ አድርጎ ሰክሽኑን የሚያጠፋው ትክክለኛ ሎጂክ
   const handleSubmitReview = async (e) => {
     e.preventDefault();
     try {
@@ -188,6 +188,7 @@ export default function Dashboard() {
         ? selectedSessionForReview.learner._id 
         : selectedSessionForReview.teacher._id;
 
+      // 1. ሪቪው ብቻ ዳታቤዝ ውስጥ መመዝገብ (ሰክሽኑን ማንካት/ማጥፋት የለም)
       await API.post("/reviews", {
         reviewer: user.id,
         reviewedUser: reviewedUserId,
@@ -200,15 +201,22 @@ export default function Dashboard() {
       setShowReviewModal(false);
       setComment("");
       setRating(5);
+      
+      // ዴታውን ሪፍሬሽ ማድረግ
+      fetchMySessions(user.id);
     } catch (err) {
+      console.error("REVIEW ERROR:", err);
       alert(err.response?.data?.message || "Failed to submit review");
     }
   };
 
+  
   if (!user) return null;
 
   const bgMain = isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
+  // 👈 የ Input ከለር በ Dark Mode ሰዓት ጥርት ብሎ እንዲታይ (ነጭ ባክግራውንድ መጥፋቱ)
+  const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
 
   return (
     <div className={`min-h-screen w-full p-4 sm:p-8 transition-colors duration-200 ${bgMain}`}>
@@ -232,6 +240,7 @@ export default function Dashboard() {
         onUpdateStatus={handleUpdateStatus}
         onOpenSessionModal={openSessionModal}
         onCompleteSession={handleCompleteSession}
+        onOpenReviewModal={openReviewModal}
       />
 
       {/* Find Learners Component */}
@@ -248,9 +257,23 @@ export default function Dashboard() {
           <form onSubmit={handleCreateSession} className={`border p-6 rounded-3xl shadow-2xl w-full max-w-md ${bgCard}`}>
             <h3 className="text-lg font-bold mb-4 text-indigo-400">Schedule Learning Session</h3>
             <label className="block text-xs font-semibold mb-1">Date</label>
-            <input type="date" value={sessionDate} onChange={(e) => setSessionDate(e.target.value)} required className="w-full mb-3 p-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-xl text-sm" />
+            <input 
+              type="date" 
+              value={sessionDate} 
+              onChange={(e) => setSessionDate(e.target.value)} 
+              required 
+              style={{ colorScheme: isDark ? 'dark' : 'light' }}
+              className={`w-full mb-3 p-3 border rounded-xl text-sm ${inputStyle}`} 
+            />
             <label className="block text-xs font-semibold mb-1">Time</label>
-            <input type="text" placeholder="e.g. 3:00 PM" value={sessionTime} onChange={(e) => setSessionTime(e.target.value)} required className="w-full mb-4 p-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-xl text-sm" />
+            <input 
+              type="text" 
+              placeholder="e.g. 3:00 PM" 
+              value={sessionTime} 
+              onChange={(e) => setSessionTime(e.target.value)} 
+              required 
+              className={`w-full mb-4 p-3 border rounded-xl text-sm ${inputStyle}`} 
+            />
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setShowSessionModal(false)} className="bg-gray-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Cancel</button>
               <button type="submit" className="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Save Session</button>
@@ -267,16 +290,16 @@ export default function Dashboard() {
             <p className="text-xs text-gray-400 mb-4">Share your experience with your learning partner.</p>
             
             <label className="block text-xs font-semibold mb-1">Rating (1 to 5 Stars)</label>
-            <select value={rating} onChange={(e) => setRating(e.target.value)} className="w-full mb-3 p-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-xl text-sm">
-              <option value="5">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
-              <option value="4">⭐⭐⭐⭐ (4 - Very Good)</option>
-              <option value="3">⭐⭐⭐ (3 - Good)</option>
-              <option value="2">⭐⭐ (2 - Fair)</option>
-              <option value="1">⭐ (1 - Poor)</option>
+            <select value={rating} onChange={(e) => setRating(e.target.value)} className={`w-full mb-3 p-3 border rounded-xl text-sm ${inputStyle}`}>
+              <option value="5" className="bg-slate-900 text-white">⭐⭐⭐⭐⭐ (5 - Excellent)</option>
+              <option value="4" className="bg-slate-900 text-white">⭐⭐⭐⭐ (4 - Very Good)</option>
+              <option value="3" className="bg-slate-900 text-white">⭐⭐⭐ (3 - Good)</option>
+              <option value="2" className="bg-slate-900 text-white">⭐⭐ (2 - Fair)</option>
+              <option value="1" className="bg-slate-900 text-white">⭐ (1 - Poor)</option>
             </select>
 
             <label className="block text-xs font-semibold mb-1">Comment</label>
-            <textarea placeholder="Write your feedback..." value={comment} onChange={(e) => setComment(e.target.value)} required rows="3" className="w-full mb-4 p-3 bg-gray-50 dark:bg-slate-950 border border-gray-300 dark:border-slate-800 rounded-xl text-sm" />
+            <textarea placeholder="Write your feedback..." value={comment} onChange={(e) => setComment(e.target.value)} required rows="3" className={`w-full mb-4 p-3 border rounded-xl text-sm ${inputStyle}`} />
 
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setShowReviewModal(false)} className="bg-gray-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Cancel</button>

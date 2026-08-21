@@ -2,7 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../ThemeContext"; 
 
-export default function RequestsList({ myRequests, mySessions, onUpdateStatus, onOpenSessionModal, onCompleteSession }) {
+ // 👈 ከ Dashboard የሚመጡትን ፕሮፖዎች (Props) እዚህ ጋር መቀበል አለበት
+export default function RequestsList({ myRequests, mySessions, onUpdateStatus, onOpenSessionModal, onOpenReviewModal, onCompleteSession }) {
     const { isDark } = useTheme();
   const navigate = useNavigate();
 
@@ -87,8 +88,8 @@ export default function RequestsList({ myRequests, mySessions, onUpdateStatus, o
                       Complete Session ✓
                     </button>
                   )}
-                  {session.status === "completed" && (
-                    <button onClick={() => onOpenSessionModal(session)} className="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition">
+                  {session.status === "completed" && onOpenReviewModal &&(
+                    <button onClick={() => onOpenReviewModal(session)} className="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition">
                       Leave Review ⭐
                     </button>
                   )}

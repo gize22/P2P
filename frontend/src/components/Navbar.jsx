@@ -33,15 +33,18 @@ export default function Navbar({ user }) {
         
         {/* Profile Avatar & User Info */}
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-700 shadow-xs font-bold">
-            {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+          {/* 👈 ልክ በፎቶው ላይ ያለው ንጹህ ግራጫ ዩሰር አዶ (👤) */}
+          <div className="w-11 h-11 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400 flex items-center justify-center shrink-0 border border-slate-300 dark:border-slate-700 shadow-xs">
+            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+            </svg>
           </div>
           <div>
-            <h1 className="text-base sm:text-lg font-extrabold flex items-center gap-2">
+            <h1 className="text-base sm:text-lg font-bold flex items-center gap-2">
               {user.name}
             </h1>
-            <p className={`text-[11px] sm:text-xs font-semibold mt-0.5 ${isDark ? "text-indigo-400" : "text-indigo-600"}`}>
-              {user.university} <span className="text-gray-400">|</span> Role: <span className="uppercase tracking-wider">{user.role}</span>
+            <p className="text-[11px] sm:text-xs text-indigo-400 mt-0.5">
+              {user.university} <span className="text-gray-400">|</span> Role: <span className="uppercase tracking-wider font-semibold">{user.role}</span>
             </p>
           </div>
         </div>

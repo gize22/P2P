@@ -69,5 +69,17 @@ router.put("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+// 4. DELETE SESSION (ሪቪው ከተሰጠ በኋላ ሰክሽኑን ከዳታቤዝ ማስወገድ)
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedSession = await Session.findByIdAndDelete(req.params.id);
+    if (!deletedSession) {
+      return res.status(404).json({ message: "Session not found" });
+    }
+    res.status(200).json({ message: "Session deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
 
 module.exports = router;
