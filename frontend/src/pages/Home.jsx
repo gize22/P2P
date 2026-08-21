@@ -43,8 +43,8 @@ export default function Home() {
           {/* Desktop Nav Links */}
           {/* Home.jsx ውስጥ ያሉት ናቭባር ሊንኮች እንደዚህ መሆን አለባቸው */}
                {/* Home.jsx ውስጥ ያሉት ናቭባር ሊንኮች እንደዚህ መሆን አለባቸው */}
-<div className="hidden md:flex items-center gap-8 text-sm font-medium">
-  <Link to="/" className="text-indigo-600 font-semibold">Home</Link>
+<div className="hidden md:flex items-center gap-8 text-md font-medium">
+  <Link to="/" className="text-indigo-300 font-bold">Home</Link>
   <Link to="/how-it-works" className="hover:text-indigo-600 transition">How It Works</Link>
 </div>
 

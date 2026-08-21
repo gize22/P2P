@@ -44,16 +44,6 @@ export default function Footer() {
           </ul>
         </div>
 
-        {/* Col 4: Newsletter / Socials */}
-        <div>
-          <h4 className="text-white text-sm font-bold uppercase tracking-wider mb-4">Stay Connected</h4>
-          <p className="text-xs text-slate-400 mb-3">Join our community updates and learning tips.</p>
-          <div className="flex gap-3 text-lg">
-            <a href="" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition">🌐</a>
-            <a href="#social" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition">💬</a>
-            <a href="#social" className="w-8 h-8 rounded-lg bg-slate-800 flex items-center justify-center hover:bg-indigo-600 hover:text-white transition">🔗</a>
-          </div>
-        </div>
 
       </div>
 

@@ -65,7 +65,7 @@ export default function HowItWorks() {
             <div className="w-16 h-16 rounded-2xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-extrabold text-2xl shrink-0">01</div>
             <div>
               <h3 className="text-xl font-bold mb-2">Create Your Student Profile</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Sign up using your real email address and verify it with the secure OTP code. Set up your student profile by adding your university details and a short bio about yourself.</p>
+              <p className="text-gray-400 text-sm leading-relaxed">Sign up using your real email address and verify it with the secure OTP code. Set up your student profile by adding your university name/details and a short bio about yourself.</p>
             </div>
           </div>
 
@@ -92,12 +92,10 @@ export default function HowItWorks() {
             <div className="w-16 h-16 rounded-2xl bg-emerald-600/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center font-extrabold text-2xl shrink-0">04</div>
             <div>
               <h3 className="text-xl font-bold mb-2">Chat, Join Groups & Community Q&A</h3>
-              <p className="text-gray-400 text-sm leading-relaxed">Engage in real-time 1-to-1 or Study Group chats (complete with Telegram-style 'seen' checkmarks and file/image uploads). Post questions on the community forum and get answers from fellow students!</p>
+              <p className="text-gray-400 text-sm leading-relaxed">Engage in real-time 1-to-1 or Study Group chats (complete with  'seen' checkmarks and file/image uploads). Post questions on the community forum and get answers from fellow students!</p>
             </div>
           </div>
         </div>
-
-        {/* Call to Action */}
         {/* Call to Action with Back to Home & Get Started */}
         <div className="mt-16 text-center bg-gradient-to-r from-indigo-600 to-purple-600 p-10 rounded-3xl text-white shadow-2xl">
           <h2 className="text-2xl md:text-3xl font-extrabold mb-3">Ready to Start Learning?</h2>
@@ -113,8 +111,6 @@ export default function HowItWorks() {
           </div>
         </div>
       </div>
-
-      {/* 👈 Footer እዚህ ጋር ተካቷል */}
       <Footer />
     </div>
   );

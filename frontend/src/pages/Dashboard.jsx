@@ -264,6 +264,13 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+      {/* Find Learners Component */}
+      <FindLearners
+        learners={learners}
+        loading={loading}
+        onSearch={(skill) => fetchAllLearners(user.id, skill)}
+        onSendRequest={handleSendRequest}
+      />
 
       {/* Requests & Sessions Component */}
       <RequestsList
@@ -275,13 +282,7 @@ export default function Dashboard() {
         onOpenReviewModal={openReviewModal}
       />
 
-      {/* Find Learners Component */}
-      <FindLearners
-        learners={learners}
-        loading={loading}
-        onSearch={(skill) => fetchAllLearners(user.id, skill)}
-        onSendRequest={handleSendRequest}
-      />
+      
 
       {/* Session Modal */}
       {showSessionModal && (

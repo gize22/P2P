@@ -55,7 +55,6 @@ export default function Navbar({ user }) {
           <Link to="/groups" className={`px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${isActive('/groups') ? activeStyle : inactiveStyle}`}>Study Groups</Link>
           <Link to="/community" className={`px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${isActive('/community') ? activeStyle : inactiveStyle}`}>Community</Link>
           <Link to="/profile" className={`px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${isActive('/profile') ? activeStyle : inactiveStyle}`}>Profile</Link>
-          <Link to="/contacts" className={`px-3.5 py-2 rounded-xl text-sm transition-all duration-200 ${isActive('/contacts') ? activeStyle : inactiveStyle}`}>Contacts</Link>
 
           <div className="h-6 w-[1px] bg-gray-300 dark:bg-slate-800 mx-1"></div>
 
