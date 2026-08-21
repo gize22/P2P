@@ -216,7 +216,7 @@ export default function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-base font-extrabold tracking-tight">Admin Control Panel</h1>
-            <p className="text-[11px] text-indigo-400">Administrator: {user.name}</p>
+            <p className="text-[11px] text-yellow-800">Administrator: {user.name}</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -300,7 +300,7 @@ export default function AdminDashboard() {
                       <td className="py-3 px-4 text-right flex justify-end gap-2">
                         {u.role !== 'admin' && (
                           <>
-                            <button onClick={() => handleMakeAdmin(u._id)} className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-lg text-xs">Make Admin</button>
+                            {/* <button onClick={() => handleMakeAdmin(u._id)} className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-lg text-xs">Make Admin</button> */}
                             <button onClick={() => handleDeleteUser(u._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg text-xs">Delete</button>
                           </>
                         )}
