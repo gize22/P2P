@@ -4,7 +4,8 @@ import io from "socket.io-client";
 import API from "../api";
 import Navbar from "../components/Navbar";
 
-const socket = io("https://p2plearn.onrender.com/api");
+// 👈 1. ሶኬቱ ከ /api ውጭ በዋናው ሊንክ ብቻ መገናኘት አለበት
+const socket = io("https://p2plearn.onrender.com");
 
 export default function ChatRoom() {
   const { groupId } = useParams();
@@ -26,15 +27,15 @@ export default function ChatRoom() {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
 
-    // የ ግሩፕ መረጃ ማምጣት
-   API.get(`/chats/group/${groupId}`)
+    // 👈 2. የ ግሩፕ መረጃ በትክክል ከ /groups ማምጣት
+    API.get("/groups")
       .then((res) => {
-        console.log("Fetched history messages:", res.data); // 👈 ታሪኩ መምጣቱን እንይ
-        setMessages(res.data);
+        const found = res.data.find((g) => g._id === groupId);
+        setGroupInfo(found);
       })
-      .catch((err) => console.error("Error fetching messages", err));
+      .catch((err) => console.error("Error fetching group info", err));
 
-    // 👈 1. ዳታቤዝ ውስጥ የተቀመጡትን የጥናት ቡድን ቻት ታሪክ (Chat History) ማምጣት
+    // 3. የጥናት ቡድን ቻት ታሪክ (Chat History) ከዳታቤዝ ማምጣት
     const fetchMessages = async () => {
       try {
         const res = await API.get(`/chats/group/${groupId}`);
@@ -49,10 +50,9 @@ export default function ChatRoom() {
     // ወደ ቻት ሩም መቀላቀል
     socket.emit("join_room", groupId);
 
-    // 👈 2. አዲስ መልእክት ሲመጣ በሪል-ታይም ወደ ስቴት መጨመር
+    // አዲስ መልእክት ሲመጣ በሪል-ታይም ወደ ስቴት መጨመር
     const handleReceiveMessage = (data) => {
       setMessages((prev) => {
-        // ዱፕሊኬት (Duplicate) እንዳይፈጠር ማረጋገጥ
         const exists = prev.some((msg) => msg._id === data._id);
         if (exists) return prev;
         return [...prev, data];
@@ -81,7 +81,6 @@ export default function ChatRoom() {
       message: newMessage,
     };
 
-    // 👈 መልእክቱን ለሰርቨር መላክ (ሰርቨሩ ዳታቤዝ ላይ ሪከርድ አድርጎ ለሁሉም ያደርሰዋል)
     socket.emit("send_message", messageData);
     setNewMessage("");
   };
@@ -139,7 +138,6 @@ export default function ChatRoom() {
         <div className="flex-1 p-4 overflow-y-auto space-y-3 h-[450px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5] dark:bg-slate-950">
           {messages.map((msg, index) => {
             const isMe = msg.sender === user.id || msg.sender?._id === user.id;
-            // 👈 የላኪውን ስም በግልጽ ማምጣት (() እንዳይኖር)
             const senderName = msg.sender?.name || (isMe ? "You" : "Member");
 
             return (
@@ -148,7 +146,6 @@ export default function ChatRoom() {
                 <div className={`p-3 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
                   isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
                 }`}>
-                  {/* 👈 ጽሁፍም ሆነ ፋይል ቢሆን በሰላም እንዲነበብ */}
                   {msg.message.includes("<a href=") ? (
                     <div dangerouslySetInnerHTML={{ __html: msg.message }} />
                   ) : (
@@ -158,8 +155,6 @@ export default function ChatRoom() {
               </div>
             );
           })}
-
-          
           <div ref={messagesEndRef} />
         </div>
 
