@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 1. REGISTER ROUTE (OTP ወደ ኢሜይል ይልካል, isVerified = false ይሆናል)
+// 1. REGISTER ROUTE (ፈጣን እና Instant Response የሚሰጥ)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -31,8 +31,8 @@ router.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
-    const otpExpiration = Date.now() + 10 * 60 * 1000; // ለ 10 ደቂቃ ብቻ የሚሰራ
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiration = Date.now() + 10 * 60 * 1000;
 
     if (user && !user.isVerified) {
       user.name = name;
@@ -57,14 +57,17 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // OTP ኮድ በኢሜይል መላክ
-    await transporter.sendMail({
+    // 👈 ኢሜይል መላኩን በ Background እናኬደዋለን (await የለውም፣ ሰርቨሩን አያስጠብቅም)
+    transporter.sendMail({
       to: user.email,
       from: process.env.EMAIL_USER,
       subject: "Email Verification OTP - P2P Learn",
       text: `Your verification code is: ${otpCode}. It expires in 10 minutes.`,
+    }).catch(mailErr => {
+      console.log("Background email send error:", mailErr.message);
     });
 
+    // 👈 ወዲያውኑ ለፍሮንተንዱ ሪስፖንስ ይመለሳል (Registering... ብሎ አይቆምም)
     res.status(201).json({
       message: "Registration successful. Please check your email for the OTP verification code.",
       email: user.email,
