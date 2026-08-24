@@ -7,12 +7,13 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// Nodemailer Transporter (ኢሜይል ለመላክ)
+// Nodemailer Transporter configured for Brevo (Real-World Production SMTP)
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp-relay.brevo.com",
+  port: 587,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.EMAIL_USER, // ከ Brevo ዳሽቦርድ የምታገኘው Login ኢሜይል
+    pass: process.env.EMAIL_PASS, // ከ Brevo ያወጣኸው ረጅም SMTP Key
   },
 });
 
