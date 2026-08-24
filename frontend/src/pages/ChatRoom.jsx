@@ -139,19 +139,27 @@ export default function ChatRoom() {
         <div className="flex-1 p-4 overflow-y-auto space-y-3 h-[450px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5] dark:bg-slate-950">
           {messages.map((msg, index) => {
             const isMe = msg.sender === user.id || msg.sender?._id === user.id;
+            // 👈 የላኪውን ስም በግልጽ ማምጣት (() እንዳይኖር)
             const senderName = msg.sender?.name || (isMe ? "You" : "Member");
 
             return (
               <div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                <span className="text-[10px] text-gray-500 mb-0.5 px-1 font-semibold">{isMe ? "You" : senderName}</span>
+                <span className="text-[10px] text-gray-400 mb-0.5 px-1 font-semibold">{senderName}</span>
                 <div className={`p-3 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
                   isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
                 }`}>
-                  <div dangerouslySetInnerHTML={{ __html: msg.message }} />
+                  {/* 👈 ጽሁፍም ሆነ ፋይል ቢሆን በሰላም እንዲነበብ */}
+                  {msg.message.includes("<a href=") ? (
+                    <div dangerouslySetInnerHTML={{ __html: msg.message }} />
+                  ) : (
+                    <p className="break-words">{msg.message}</p>
+                  )}
                 </div>
               </div>
             );
           })}
+
+          
           <div ref={messagesEndRef} />
         </div>
 

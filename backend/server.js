@@ -62,33 +62,29 @@ io.on("connection", (socket) => {
     console.log(`User joined room: ${room}`);
   });
 
- // ግሩፕ ቻት መልእክት ሲላክ
+ // ግሩፕ ቻት መልእክት ሲላክ (የላኪውን ስም እና ኢሜይል በሰላም ይዞ እንዲሄድ ማድረግ)
   socket.on("send_message", async (data) => {
     try {
       const { sender, receiver, groupId, message } = data;
-      console.log("--> Trying to save message:", data); // 👈 ዴታው መምጣቱን እንይ
-
-      if (!groupId) {
-        console.log("Error: groupId is missing!");
-        return;
-      }
-
-      // ዳታቤዝ ውስጥ መመዝገብ
+      
+      // 1. ዳታቤዝ ውስጥ ማስቀመጥ
       let newMessage = await Message.create({ 
         sender, 
         receiver: receiver || null, 
-        groupId, 
+        groupId: groupId || null, 
         message 
       });
 
-      newMessage = await newMessage.populate("sender", "name");
-      console.log("--> Message saved successfully to DB!", newMessage._id);
+      // 2. 👈 የላኪውን ስም (name) እና ኢሜይል (email) በአግባቡ ፖፑሌት ማድረግ
+      newMessage = await newMessage.populate("sender", "name email");
 
       if (groupId) {
         io.to(groupId).emit("receive_message", newMessage);
+      } else if (receiver) {
+        io.to(receiver).emit("receive_message", newMessage);
       }
     } catch (error) {
-      console.error("--> CRITICAL DB SAVE ERROR:", error.message); // 👈 ኤረሩን በግልጽ ያሳየናል
+      console.error("Group Message save error:", error);
     }
   });
 
