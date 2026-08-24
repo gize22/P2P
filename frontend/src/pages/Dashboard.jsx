@@ -7,7 +7,7 @@ import FindLearners from "../components/FindLearners";
 import io from "socket.io-client";
 import { useTheme } from "../ThemeContext";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://p2plearn.onrender.com/api");
 
 export default function Dashboard() {
   const { isDark } = useTheme();

@@ -4,7 +4,7 @@ import io from "socket.io-client";
 import API from "../api";
 import Navbar from "../components/Navbar";
 
-const socket = io("http://localhost:5000");
+const socket = io("https://p2plearn.onrender.com/api");
 
 export default function ChatRoom() {
   const { groupId } = useParams();
