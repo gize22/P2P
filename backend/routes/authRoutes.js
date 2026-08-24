@@ -4,16 +4,18 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const User = require("../models/User");
+const nodemailer = require("nodemailer");
 
 const router = express.Router();
 
-// Nodemailer Transporter configured for Brevo (Real-World Production SMTP)
+// 👈 እውነተኛውን Gmail SMTP እና App Password በ Render ላይ ማስተካከል
 const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER, // ከ Brevo ዳሽቦርድ የምታገኘው Login ኢሜይል
-    pass: process.env.EMAIL_PASS, // ከ Brevo ያወጣኸው ረጅም SMTP Key
+    user: process.env.EMAIL_USER, // e.g. gizachewkassa22@gmail.com
+    pass: process.env.EMAIL_PASS, // የጂሜይልህን 16 አሃዝ App Password
   },
 });
 
