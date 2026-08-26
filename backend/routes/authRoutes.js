@@ -7,17 +7,17 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// 👈 እውነተኛውን የ Brevo SMTP ማዋቀር (ለማንኛውም ዩሰር ኢሜይል ለመላክ)
+// 👈 እውነተኛውን የ Brevo SMTP ማዋቀር
 const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: 587,
   auth: {
-    user: process.env.EMAIL_USER, // የእርስዎ የብሬቮ ሎጊን ኢሜይል
-    pass: process.env.EMAIL_PASS, // የብሬቮ SMTP Key
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
-// 1. REGISTER (ማንኛውም ዩሰር ሲመዘገብ OTP ወደ ራሱ ኢሜይል ይልካል)
+// 1. REGISTER ROUTE
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -58,10 +58,10 @@ router.post("/register", async (req, res) => {
       });
     }
 
-   // 👈 እውነተኛውን የ Brevo SMTP በመጠቀም ኢሜይል መላክ (በስተጀርባ እንዲሰራ Non-blocking አድርገነዋል)
+    // 👈 ኢሜይል መላክ በስተጀርባ (Non-blocking) እንዲሰራ
     transporter.sendMail({
       to: user.email,
-      from: "gizachewkassa22@gmail.com", // የአድሚኑ/ፕላትፎርሙ ኢሜይል
+      from: "gizachewkassa22@gmail.com",
       subject: "Email Verification OTP - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                <h2>Welcome to P2P Learn, ${user.name}!</h2>
@@ -75,24 +75,19 @@ router.post("/register", async (req, res) => {
       console.error("Brevo Email Error:", mailErr.message);
     });
 
-    // 👈 ሰርቨሩ ወዲያውኑ 201 Success ይመልሳል (Registering... ብሎ ፈጽሞ አይቆምም)
-    res.status(201).json({
+    // 👈 አንድ ጊዜ ብቻ የሚመለስ Success Response
+    return res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",
       email: user.email,
     });
 
-
-    res.status(201).json({
-      message: "Registration successful! Please check your email for the verification code.",
-      email: user.email,
-    });
   } catch (error) {
     console.error("Register Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 2. VERIFY OTP (ኮዱን ተቀብሎ ማረጋገጫ)
+// 2. VERIFY OTP ROUTE
 router.post("/verify-otp", async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -115,13 +110,13 @@ router.post("/verify-otp", async (req, res) => {
     user.otpExpires = undefined;
     await user.save();
 
-    res.status(200).json({ message: "Email verified successfully! You can now login." });
+    return res.status(200).json({ message: "Email verified successfully! You can now login." });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 3. LOGIN (Verified መሆኑን ማረጋገጥ)
+// 3. LOGIN ROUTE
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -150,7 +145,7 @@ router.post("/login", async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Login successful",
       token,
       user: {
@@ -165,11 +160,11 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 4. FORGOT PASSWORD
+// 4. FORGOT PASSWORD ROUTE
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -183,11 +178,12 @@ router.post("/forgot-password", async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    const resetUrl = `https://p2-p-lime.vercel.app/reset-password/${token}`;
+    // 👈 ትክክለኛው የ Vercel Live Link
+    const resetUrl = `https://p2plearn.vercel.app/reset-password/${token}`;
 
     await transporter.sendMail({
       to: user.email,
-      from: "p2plearn1@gmail.com",
+      from: "gizachewkassa22@gmail.com",
       subject: "Password Reset - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                <h2>Password Reset Request</h2>
@@ -196,14 +192,14 @@ router.post("/forgot-password", async (req, res) => {
              </div>`,
     });
 
-    res.status(200).json({ message: "Password reset link sent to your email" });
+    return res.status(200).json({ message: "Password reset link sent to your email" });
   } catch (error) {
     console.error("Forgot Password Error:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 5. RESET PASSWORD
+// 5. RESET PASSWORD ROUTE
 router.post("/reset-password/:token", async (req, res) => {
   try {
     const { password } = req.body;
@@ -221,9 +217,9 @@ router.post("/reset-password/:token", async (req, res) => {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    res.status(200).json({ message: "Password updated successfully!" });
+    return res.status(200).json({ message: "Password updated successfully!" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
