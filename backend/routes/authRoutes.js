@@ -7,17 +7,18 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// 👈 እውነተኛውን የ Brevo SMTP ማዋቀር
+// 👈 የ Gmail SMTP ማዋቀር (በ ENV ላይ ባለው ትክክለኛ የ EMAIL_APP_PASSWORD ኪ)
 const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true, // true for port 465, false for 587
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    pass: process.env.EMAIL_APP_PASSWORD, // 👈 ከ .env ጋር የተስተካከለ
   },
 });
 
-// 1. REGISTER ROUTE
+// 1. REGISTER ROUTE (OTP በ Gmail SMTP መላክ)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -58,10 +59,10 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 👈 ኢሜይል መላክ በስተጀርባ (Non-blocking) እንዲሰራ
+    // 👈 ጂሜይል በመጠቀም OTP መላክ (Non-blocking)
     transporter.sendMail({
       to: user.email,
-      from: "gizachewkassa22@gmail.com",
+      from: process.env.EMAIL_USER,
       subject: "Email Verification OTP - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                <h2>Welcome to P2P Learn, ${user.name}!</h2>
@@ -70,12 +71,11 @@ router.post("/register", async (req, res) => {
                <p>This code expires in 10 minutes.</p>
              </div>`,
     }).then(() => {
-      console.log("OTP email sent successfully to:", user.email);
+      console.log("Gmail OTP email sent successfully to:", user.email);
     }).catch(mailErr => {
-      console.error("Brevo Email Error:", mailErr.message);
+      console.error("Gmail SMTP Error:", mailErr.message);
     });
 
-    // 👈 አንድ ጊዜ ብቻ የሚመለስ Success Response
     return res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",
       email: user.email,
@@ -178,12 +178,11 @@ router.post("/forgot-password", async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    // 👈 ትክክለኛው የ Vercel Live Link
     const resetUrl = `https://p2plearn.vercel.app/reset-password/${token}`;
 
     await transporter.sendMail({
       to: user.email,
-      from: "gizachewkassa22@gmail.com",
+      from: process.env.EMAIL_USER,
       subject: "Password Reset - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                <h2>Password Reset Request</h2>

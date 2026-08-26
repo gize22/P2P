@@ -1,47 +1,90 @@
 const express = require("express");
-const nodemailer = require("nodemailer");
-const Contact = require("../models/Contact"); // 👈 ሞዴሉ በትክክል መጥራቱን አረጋግጥ
+const Contact = require("../models/Contact");
+const User = require("../models/User");
+const { sendEmail, emailTemplates } = require("../config/email");
 const router = express.Router();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
-
-// 1. POST: መልእክት መቀበያ
+// =============================================
+// POST: Submit contact/feedback message
+// =============================================
 router.post("/", async (req, res) => {
   try {
-    const { name, email, message } = req.body;
+    const { name, email, subject, message } = req.body;
+
+    // Validate
     if (!name || !email || !message) {
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ 
+        success: false,
+        message: "Name, email and message are required" 
+      });
     }
-    await Contact.create({ name, email, message });
-    res.status(200).json({ message: "Thank you! Your message has been sent successfully." });
+
+    // Check if user exists
+    const user = await User.findOne({ email });
+
+    // Save to database
+    const contact = await Contact.create({ 
+      name, 
+      email, 
+      subject: subject || "General Inquiry",
+      message,
+      userId: user ? user._id : null
+    });
+
+    console.log("✅ Contact saved:", contact._id);
+
+    // Send confirmation to user
+    await sendEmail(
+      email,
+      emailTemplates.contactConfirmation(name, subject || "General Inquiry", message),
+      { name }
+    );
+
+    // Send notification to admin
+    await sendEmail(
+      process.env.ADMIN_EMAIL,
+      emailTemplates.adminNotification(name, email, subject || "General Inquiry", message, user?._id),
+      { name }
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "Thank you! Your message has been sent successfully."
+    });
+
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Contact error:", error);
+    res.status(500).json({ 
+      success: false,
+      message: "Server error"
+    });
   }
 });
 
-// 2. GET: ለአድሚን መልእክቶቹን ማምጫ
+// GET: All contacts (Admin only)
 router.get("/", async (req, res) => {
   try {
-    const messages = await Contact.find().sort({ createdAt: -1 });
-    res.status(200).json(messages);
+    const contacts = await Contact.find()
+      .sort({ createdAt: -1 })
+      .populate("userId", "name email");
+    
+    res.status(200).json({
+      success: true,
+      count: contacts.length,
+      data: contacts
+    });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// 3. DELETE: መልእክት ማጥፊያ
+// DELETE: Contact (Admin only)
 router.delete("/:id", async (req, res) => {
   try {
     await Contact.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: "Message deleted successfully" });
+    res.status(200).json({ success: true, message: "Deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
