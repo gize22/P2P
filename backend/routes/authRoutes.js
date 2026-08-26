@@ -2,24 +2,15 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+const { Resend } = require("resend"); // 👈 Resend ማምጣት
 const User = require("../models/User");
-const nodemailer = require("nodemailer");
 
 const router = express.Router();
 
-// 👈 እውነተኛውን Gmail SMTP እና App Password በ Render ላይ ማስተካከል
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for 465, false for other ports
-  auth: {
-    user: process.env.EMAIL_USER, // e.g. gizachewkassa22@gmail.com
-    pass: process.env.EMAIL_PASS, // የጂሜይልህን 16 አሃዝ App Password
-  },
-});
+// 👈 Resendን በ API Key ማዋቀር
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 1. REGISTER ROUTE (ፈጣን እና Instant Response የሚሰጥ)
+// 1. REGISTER ROUTE (OTP በ Resend አማካኝነት መላክ)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -34,8 +25,8 @@ router.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiration = Date.now() + 10 * 60 * 1000;
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
+    const otpExpiration = Date.now() + 10 * 60 * 1000; // 10 minutes
 
     if (user && !user.isVerified) {
       user.name = name;
@@ -60,27 +51,30 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 👈 ኢሜይል መላኩን በ Background እናኬደዋለን (await የለውም፣ ሰርቨሩን አያስጠብቅም)
-    transporter.sendMail({
-      to: user.email,
-      from: process.env.EMAIL_USER,
+    // 👈 ሪዘንድን በመጠቀም OTP ኢሜይል መላክ
+    await resend.emails.send({
+      from: "P2P Learn <onboarding@resend.dev>", // በነጻ የሚሰራው ኦፊሻል አድራሻ
+      to: [user.email],
       subject: "Email Verification OTP - P2P Learn",
-      text: `Your verification code is: ${otpCode}. It expires in 10 minutes.`,
-    }).catch(mailErr => {
-      console.log("Background email send error:", mailErr.message);
+      html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+               <h2>Welcome to P2P Learn, ${user.name}!</h2>
+               <p>Your email verification code is:</p>
+               <h1 style="color: #4f46e5; letter-spacing: 2px;">${otpCode}</h1>
+               <p>This code expires in 10 minutes.</p>
+             </div>`,
     });
 
-    // 👈 ወዲያውኑ ለፍሮንተንዱ ሪስፖንስ ይመለሳል (Registering... ብሎ አይቆምም)
     res.status(201).json({
       message: "Registration successful. Please check your email for the OTP verification code.",
       email: user.email,
     });
   } catch (error) {
+    console.error("Resend Register Error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 2. VERIFY OTP ROUTE (ኢሜይል ማረጋገጫ ኮድ መቀበያ)
+// 2. VERIFY OTP ROUTE
 router.post("/verify-otp", async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -109,7 +103,7 @@ router.post("/verify-otp", async (req, res) => {
   }
 });
 
-// 3. LOGIN ROUTE (Verified መሆኑን ማረጋገጥ)
+// 3. LOGIN ROUTE
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -123,8 +117,7 @@ router.post("/login", async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    // ኢሜይሉ ያልተረጋገጠ ከሆነ ሎጊን ከልከል
-    if (!user.isVerified) {
+    if (user.role !== "admin" && !user.isVerified) {
       return res.status(400).json({ message: "Please verify your email first with the OTP code sent to your email." });
     }
 
@@ -135,7 +128,7 @@ router.post("/login", async (req, res) => {
 
     const token = jwt.sign(
       { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "supersecretkey12345",
       { expiresIn: "1d" }
     );
 
@@ -154,14 +147,11 @@ router.post("/login", async (req, res) => {
     });
 
   } catch (error) {
-    res.status(500).json({
-      message: "Server error",
-      error: error.message
-    });
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 4. FORGOT PASSWORD ROUTE (ሊንክ ወደ ኢሜይል መላኪያ)
+// 4. FORGOT PASSWORD ROUTE (ሊንክ በ Resend መላኪያ)
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -175,22 +165,27 @@ router.post("/forgot-password", async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+    const resetUrl = `http://localhost:5173/reset-password/${token}`; // (ለላይቭ ዌብሳይት የ Vercel ሊንክ ይሆናል)
 
-    await transporter.sendMail({
-      to: user.email,
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: "P2P Learn <onboarding@resend.dev>",
+      to: [user.email],
       subject: "Password Reset - P2P Learn",
-      text: `Click the link below to reset your password:\n\n${resetUrl}\n`,
+      html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+               <h2>Password Reset Request</h2>
+               <p>Click the button below to reset your password. This link expires in 1 hour.</p>
+               <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
+             </div>`,
     });
 
     res.status(200).json({ message: "Password reset link sent to your email" });
   } catch (error) {
+    console.error("Resend Forgot Password Error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
-// 5. RESET PASSWORD ROUTE (አዲስ ፓስወርድ መቀበያ)
+// 5. RESET PASSWORD ROUTE
 router.post("/reset-password/:token", async (req, res) => {
   try {
     const { password } = req.body;
