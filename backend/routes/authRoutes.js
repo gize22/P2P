@@ -58,10 +58,10 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 👈 እውነተኛውን ዩሰር ኢሜይል በመጠቀም OTP መላክ
-    await transporter.sendMail({
+   // 👈 እውነተኛውን የ Brevo SMTP በመጠቀም ኢሜይል መላክ (በስተጀርባ እንዲሰራ Non-blocking አድርገነዋል)
+    transporter.sendMail({
       to: user.email,
-      from: "p2plearn1@gmail.com", // አድሚኑ/ፕላትፎርሙ የሚልክበት ኢሜይል
+      from: "gizachewkassa22@gmail.com", // የአድሚኑ/ፕላትፎርሙ ኢሜይል
       subject: "Email Verification OTP - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                <h2>Welcome to P2P Learn, ${user.name}!</h2>
@@ -69,7 +69,18 @@ router.post("/register", async (req, res) => {
                <h1 style="color: #4f46e5; letter-spacing: 2px;">${otpCode}</h1>
                <p>This code expires in 10 minutes.</p>
              </div>`,
+    }).then(() => {
+      console.log("OTP email sent successfully to:", user.email);
+    }).catch(mailErr => {
+      console.error("Brevo Email Error:", mailErr.message);
     });
+
+    // 👈 ሰርቨሩ ወዲያውኑ 201 Success ይመልሳል (Registering... ብሎ ፈጽሞ አይቆምም)
+    res.status(201).json({
+      message: "Registration successful! Please check your email for the verification code.",
+      email: user.email,
+    });
+
 
     res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",
