@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
+import io from "socket.io-client"; // 👈 ሶኬት ማምጣት
 
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
@@ -12,8 +13,7 @@ export default function AdminDashboard() {
   const [reviews, setReviews] = useState([]);
   const [activeTab, setActiveTab] = useState("users");
   
-  // 👈 የ ቲም ሁኔታን ከ localStorage በቀጥታ ማንበብ
-  const [isDark, setIsDark] = useState(localStorage.getItem("theme") === "dark");
+  const isDark = localStorage.getItem("theme") === "dark";
 
   const [announcementText, setAnnouncementText] = useState("");
   const [showWarningModal, setShowWarningModal] = useState(false);
@@ -39,9 +39,14 @@ export default function AdminDashboard() {
   }, [navigate]);
 
   const toggleTheme = () => {
-    const newTheme = isDark ? "light" : "dark";
-    localStorage.setItem("theme", newTheme);
-    setIsDark(!isDark);
+    if (isDark) {
+      localStorage.setItem("theme", "light");
+      document.documentElement.classList.remove("dark");
+    } else {
+      localStorage.setItem("theme", "dark");
+      document.documentElement.classList.add("dark");
+    }
+    window.location.reload();
   };
 
   const fetchAllAdminData = async () => {
@@ -171,19 +176,21 @@ export default function AdminDashboard() {
     setShowWarningModal(true);
   };
 
+  // 👈 የ Warning መልእክት በሰላም መላኪያ ፊንክሽን
   const handleSendDirectWarning = async (e) => {
     e.preventDefault();
     try {
-      await API.post("/admin/send-warning", {
+      const res = await API.post("/admin/send-warning", {
         adminId: user.id,
         studentId: targetStudentId,
         message: warningText
       });
-      alert("Warning sent directly to the student's messages!");
+      alert(res.data.message || "Warning sent directly to the student!");
       setShowWarningModal(false);
       setWarningText("");
     } catch (err) {
-      alert("Failed to send warning");
+      console.error("Warning error:", err);
+      alert(err.response?.data?.message || "Failed to send warning");
     }
   };
 
@@ -194,10 +201,9 @@ export default function AdminDashboard() {
 
   if (!user) return null;
 
-  // 👈 በቀጥታ በ isDark ስቴት የሚቀያየሩ ከለሮች
-  const bgMain = isDark ? "bg-slate-950 text-white" : "bg-gray-50 text-gray-900";
+  const bgMain = isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
-  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-100" : "bg-gray-50 border-gray-200 text-gray-800";
+  const bgInnerCard = isDark ? "bg-slate-950 border-slate-800 text-slate-200" : "bg-gray-50 border-gray-200 text-gray-800";
   const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
   const tableTextMain = isDark ? "text-white font-medium" : "text-gray-900 font-medium";
   const tableTextSub = isDark ? "text-slate-300" : "text-gray-600";
@@ -205,10 +211,9 @@ export default function AdminDashboard() {
   return (
     <div className={`min-h-screen w-full flex flex-col transition-colors duration-200 ${bgMain}`}>
       
-     {/* Top Header */}
+      {/* Top Header */}
       <div className={`w-full px-6 py-4 shadow-md flex justify-between items-center border-b ${bgCard}`}>
         <div className="flex items-center gap-3">
-          {/* 👈 ፕሪሚየም አድሚን አዶ (Admin Shield Badge SVG) */}
           <div className="w-10 h-10 rounded-xl bg-indigo-600/10 border border-indigo-500/20 text-indigo-500 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-xs">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -216,11 +221,10 @@ export default function AdminDashboard() {
           </div>
           <div>
             <h1 className="text-base font-extrabold tracking-tight">Admin Control Panel</h1>
-            <p className="text-[11px] text-yellow-800">Administrator: {user.name}</p>
+            <p className="text-[11px] text-yellow-600 dark:text-yellow-400">Administrator: {user.name}</p>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          {/* <Link to="/dashboard" className="text-xs font-semibold text-indigo-500 hover:underline">← User Dashboard</Link> */}
           <button onClick={toggleTheme} className="px-3 py-1.5 rounded-xl bg-gray-200 dark:bg-slate-800 text-xs font-semibold shadow-xs" title="Toggle Theme">
             {isDark ? "☀️ Light Mode" : "🌙 Dark Mode"}
           </button>
@@ -299,10 +303,7 @@ export default function AdminDashboard() {
                       <td className="py-3 px-4"><span className="text-xs bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full">{u.role}</span></td>
                       <td className="py-3 px-4 text-right flex justify-end gap-2">
                         {u.role !== 'admin' && (
-                          <>
-                            {/* <button onClick={() => handleMakeAdmin(u._id)} className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-lg text-xs">Make Admin</button> */}
-                            <button onClick={() => handleDeleteUser(u._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg text-xs">Delete</button>
-                          </>
+                          <button onClick={() => handleDeleteUser(u._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg text-xs">Delete</button>
                         )}
                       </td>
                     </tr>
@@ -351,21 +352,36 @@ export default function AdminDashboard() {
           )}
 
           {/* Tab 4: Chats */}
+          {/* Tab 3: Chats */}
           {activeTab === "chats" && (
             <div className={`w-full rounded-2xl shadow-lg p-6 space-y-3 border ${bgCard}`}>
               <h2 className="text-lg font-bold mb-4">Group Messages & Files</h2>
-              {messages.map((msg) => (
-                <div key={msg._id} className={`p-4 border rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${bgInnerCard}`}>
-                  <div>
-                    <p className="text-xs text-indigo-400 font-semibold">Group: {msg.groupId?.name || "General"} | Sender: {msg.sender?.name} ({msg.sender?.email})</p>
-                    <div className={`text-sm mt-1 ${tableTextMain}`} dangerouslySetInnerHTML={{ __html: msg.message }} />
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => triggerWarningModal(msg.sender?._id)} className="bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg text-xs">Send Warning</button>
-                    <button onClick={() => handleDeleteMessage(msg._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete</button>
-                  </div>
-                </div>
-              ))}
+              {messages.length === 0 ? (
+                <p className="text-sm text-gray-400">No group messages found.</p>
+              ) : (
+                messages.map((msg) => {
+                  // 👈 ዩሰሩ ከተሰረዘ (null ከሆነ) ባዶ እንዳይሆን
+                  const senderName = msg.sender?.name || "Deleted User";
+                  const senderEmail = msg.sender?.email ? `(${msg.sender.email})` : "";
+
+                  return (
+                    <div key={msg._id} className={`p-4 border rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 ${bgInnerCard}`}>
+                      <div>
+                        <p className="text-xs text-indigo-400 font-semibold">
+                          Group: {msg.groupId?.name || "General"} | Sender: {senderName} <span className="text-gray-400">{senderEmail}</span>
+                        </p>
+                        <div className={`text-sm mt-1 ${tableTextMain}`} dangerouslySetInnerHTML={{ __html: msg.message }} />
+                      </div>
+                      <div className="flex gap-2">
+                        {msg.sender?._id && (
+                          <button onClick={() => triggerWarningModal(msg.sender._id)} className="bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg text-xs">Send Warning</button>
+                        )}
+                        <button onClick={() => handleDeleteMessage(msg._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete</button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
             </div>
           )}
 

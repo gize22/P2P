@@ -7,18 +7,18 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// 👈 የ Gmail SMTP ማዋቀር (በ ENV ላይ ባለው ትክክለኛ የ EMAIL_APP_PASSWORD ኪ)
+// 👈 የ Gmail SMTP ማዋቀር
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
-  secure: true, // true for port 465, false for 587
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD, // 👈 ከ .env ጋር የተስተካከለ
+    pass: process.env.EMAIL_APP_PASSWORD,
   },
 });
 
-// 1. REGISTER ROUTE (OTP በ Gmail SMTP መላክ)
+// 1. REGISTER ROUTE (OTP ጄኔሬት አድርጎ ወደ ጂሜይል የሚልክ)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -34,7 +34,7 @@ router.post("/register", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString(); // 6 digit OTP
-    const otpExpiration = Date.now() + 10 * 60 * 1000; // ለ 10 ደቂቃ
+    const otpExpiration = Date.now() + 10 * 60 * 1000; // 10 minutes
 
     if (user && !user.isVerified) {
       user.name = name;
@@ -59,7 +59,7 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 👈 ጂሜይል በመጠቀም OTP መላክ (Non-blocking)
+    // 👈 ጂሜይል በመጠቀም OTP ማስተላለፍ (በስተጀርባ በጸጥታ የሚሰራ)
     transporter.sendMail({
       to: user.email,
       from: process.env.EMAIL_USER,
@@ -71,7 +71,7 @@ router.post("/register", async (req, res) => {
                <p>This code expires in 10 minutes.</p>
              </div>`,
     }).then(() => {
-      console.log("Gmail OTP email sent successfully to:", user.email);
+      console.log("OTP email sent successfully to:", user.email);
     }).catch(mailErr => {
       console.error("Gmail SMTP Error:", mailErr.message);
     });

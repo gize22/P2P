@@ -32,6 +32,7 @@ export default function Register() {
 
       const res = await API.post("/auth/register", payload);
       alert(res.data.message);
+      // 👈 ዩሰሩን በቀጥታ ወደ ቬርፊኬሽን ገጽ (ኢሜይሉን አብሮ በመያዝ) መውሰድ
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed");
