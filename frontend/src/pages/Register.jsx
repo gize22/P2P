@@ -47,10 +47,10 @@ export default function Register() {
       };
 
       await emailjs.send(
-        "service_appckqq",    // 👈 ከ EmailJS ያወጣኸውን Service ID አስገባ
+        "service_j2li63d",   
         "template_3ljr5bbb",
         templateParams,
-        "MlXVeB-ucnRusJ3kv"     // 👈 ከ EmailJS ያወጣኸውን Public Key አስገባ
+        "MlXVeB-ucnRusJ3kv"     
       );
 
       alert("Registration successful! Check your email for the OTP code.");
