@@ -2,15 +2,15 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { Resend } = require("resend");
+const { Resend } = require("resend"); // 👈 ሪሰንድ ኤፒአይ
 const User = require("../models/User");
 
 const router = express.Router();
 
-// 👈 Resendን በ API Key ማዋቀር (Render ላይ 100% የሚሰራ)
+// 👈 ሪሰንድን በ API Key ማዋቀር (Render ላይ 100% የሚሰራ)
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 1. REGISTER ROUTE (OTP በ Resend አፈላልጎ መላክ)
+// 1. REGISTER ROUTE (OTP በ Resend መላክ)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -51,7 +51,7 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 👈 ሪዘንድን በመጠቀም እውነተኛውን የ OTP ኮድ ወደ ዩሰሩ ኢሜይል መላክ
+    // 👈 በ Resend በኩል እውነተኛውን የ OTP ኮድ ወደ ዩሰሩ ኢሜይል መላክ
     try {
       const data = await resend.emails.send({
         from: "P2P Learn <onboarding@resend.dev>",
