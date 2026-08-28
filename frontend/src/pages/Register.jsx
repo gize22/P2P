@@ -25,7 +25,6 @@ export default function Register() {
     e.preventDefault();
     setError("");
     setLoading(true);
-
     try {
       const payload = {
         ...formData,
@@ -33,17 +32,15 @@ export default function Register() {
         skillsToLearn: formData.skillsToLearn.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
-      // 1. 6 አሃዝ OTP ራሱ ፍሮንተንድ ላይ ማመንጨት
-      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+      // 1. ሪኩዌስት ወደ ባክኤንድ መላክ (ባክኤንድ ራሱ OTP ጄኔሬት አድርጎ ሪስፖንስ ይመልሳል)
+      const res = await API.post("/auth/register", payload);
+      const serverOtp = res.data.otpCode; // 👈 ከ ዳታቤዝ የመጣው ትክክለኛው ኮድ
 
-      // 2. ዩሰሩን ዳታቤዝ ውስጥ መመዝገብ (ግን እስካሁን isVerified: false ይሆናል)
-      await API.post("/auth/register", { ...payload, otp: otpCode });
-
-      // 3. 👈 EmailJS በመጠቀም ኮዱን በቀጥታ ወደ ዩሰሩ ኢሜይል መላክ
+      // 2. EmailJS በመጠቀም ያንን ትክክለኛ ኮድ ወደ ዩሰሩ ኢሜይል መላክ
       const templateParams = {
         to_email: formData.email,
         to_name: formData.name,
-        otp_code: otpCode,
+        otp_code: serverOtp, // 👈 ትክክለኛው ኮድ
       };
 
       await emailjs.send(
@@ -53,7 +50,7 @@ export default function Register() {
         "MlXVeB-ucnRusJ3kv"     
       );
 
-      alert("Registration successful! Check your email for the OTP code.");
+       alert("Registration successful! Check your email for the verification code.");
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
       console.error(err);

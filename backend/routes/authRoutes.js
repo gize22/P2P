@@ -83,6 +83,7 @@ try {
     return res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",
       email: user.email,
+      otpCode: otpCode // 👈 ዳታቤዝ ውስጥ የተመዘገበውን ትክክለኛ ኮድ መመለስ
     });
 
   } catch (error) {
