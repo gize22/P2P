@@ -32,16 +32,17 @@ export default function Register() {
         skillsToLearn: formData.skillsToLearn.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
-      // 1. ሪኩዌስት ወደ ባክኤንድ መላክ (ባክኤንድ ራሱ OTP ጄኔሬት አድርጎ ሪስፖንስ ይመልሳል)
+      // 1. ሪኩዌስት ወደ ባክኤንድ መላክ
       const res = await API.post("/auth/register", payload);
-      const serverOtp = res.data.otpCode; // 👈 ከ ዳታቤዝ የመጣው ትክክለኛው ኮድ
+      const serverOtp = res.data.otpCode; // 👈 ከባክኤንድ የመለሰውን ትክክለኛ ኮድ መቀበል
 
       // 2. EmailJS በመጠቀም ያንን ትክክለኛ ኮድ ወደ ዩሰሩ ኢሜይል መላክ
       const templateParams = {
         to_email: formData.email,
         to_name: formData.name,
-        otp_code: serverOtp, // 👈 ትክክለኛው ኮድ
+        otp_code: serverOtp, // 👈 ቴምፕሌቱ ላይ የሚሞላው ኮድ
       };
+
 
       await emailjs.send(
         "service_j2li63d",   
@@ -50,7 +51,7 @@ export default function Register() {
         "MlXVeB-ucnRusJ3kv"     
       );
 
-       alert("Registration successful! Check your email for the verification code.");
+       alert("Registration successful! Check your email for the OTP code.");
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
       console.error(err);
