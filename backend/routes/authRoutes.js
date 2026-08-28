@@ -63,12 +63,22 @@ router.post("/register", async (req, res) => {
     const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Register ሪውት ውስጥ ኢሜይል ሲላክ:
-await resend.emails.send({
-  from: "P2P Learn <onboarding@resend.dev>",
-  to: [user.email],
-  subject: "Email Verification OTP - P2P Learn",
-  html: `<h2>Welcome to P2P Learn, ${user.name}!</h2><p>Your OTP code is: <strong>${otpCode}</strong></p>`,
-});
+try {
+   const data = await resend.emails.send({
+     from: "P2P Learn <onboarding@resend.dev>",
+     to: [user.email],
+     subject: "Email Verification OTP - P2P Learn",
+     html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+              <h2>Welcome to P2P Learn, ${user.name}!</h2>
+              <p>Your email verification code is:</p>
+              <h1 style="color: #4f46e5; letter-spacing: 2px;">${otpCode}</h1>
+              <p>This code expires in 10 minutes.</p>
+            </div>`,
+   });
+   console.log("Resend API Success Response:", data);
+ } catch (resendErr) {
+   console.error("CRITICAL RESEND API ERROR:", resendErr);
+ }
 
     return res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",

@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
+import emailjs from "@emailjs/browser"; // 👈 EmailJS ማምጣት
+
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -23,6 +25,7 @@ export default function Register() {
     e.preventDefault();
     setError("");
     setLoading(true);
+
     try {
       const payload = {
         ...formData,
@@ -30,11 +33,30 @@ export default function Register() {
         skillsToLearn: formData.skillsToLearn.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
-      const res = await API.post("/auth/register", payload);
-      alert(res.data.message);
-      // 👈 ዩሰሩን በቀጥታ ወደ ቬርፊኬሽን ገጽ (ኢሜይሉን አብሮ በመያዝ) መውሰድ
+      // 1. 6 አሃዝ OTP ራሱ ፍሮንተንድ ላይ ማመንጨት
+      const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+      // 2. ዩሰሩን ዳታቤዝ ውስጥ መመዝገብ (ግን እስካሁን isVerified: false ይሆናል)
+      await API.post("/auth/register", { ...payload, otp: otpCode });
+
+      // 3. 👈 EmailJS በመጠቀም ኮዱን በቀጥታ ወደ ዩሰሩ ኢሜይል መላክ
+      const templateParams = {
+        to_email: formData.email,
+        to_name: formData.name,
+        otp_code: otpCode,
+      };
+
+      await emailjs.send(
+        "service_appckqq",    // 👈 ከ EmailJS ያወጣኸውን Service ID አስገባ
+        "template_3ljr5bbb",
+        templateParams,
+        "MlXVeB-ucnRusJ3kv"     // 👈 ከ EmailJS ያወጣኸውን Public Key አስገባ
+      );
+
+      alert("Registration successful! Check your email for the OTP code.");
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
