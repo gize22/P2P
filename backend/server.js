@@ -25,8 +25,11 @@ const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+  },
+   transports: ["polling", "websocket"], // 👈 ፖሊንግን ማስቀደም (የ WebSocket 400 ኤረርን ያስወግዳል)
+  allowEIO3: true
 });
 
 const PORT = process.env.PORT || 5000;
@@ -34,6 +37,10 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+
+// ዩፕሎድ የተደረጉ ፋይሎች እንዲታዩ
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // io ን ለ routes ማስተላለፍ እንዲቻል ማስቀመጥ
 app.set("io", io);

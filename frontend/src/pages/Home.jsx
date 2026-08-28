@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
+import API from "../api";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
-import API from "../api";
-import Logo from "../components/Logo";
+
 export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -26,6 +30,36 @@ export default function Home() {
     }
   };
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // 👈 የኮንታክት ፎርም መላኪያ ትክክለኛው ሎጂክ
+  const handleContactSubmit = async (e) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+    setLoading(true);
+
+    try {
+      const payload = {
+        name: formData.name,
+        email: formData.email,
+        subject: "General Inquiry",
+        message: formData.message
+      };
+
+      const res = await API.post("/contact", payload);
+      setSuccessMsg(res.data.message || "Thank you! Your message has been sent successfully.");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (err) {
+      console.error("Contact error:", err);
+      setErrorMsg(err.response?.data?.message || "Failed to send message.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className={`min-h-screen font-sans transition-colors duration-200 selection:bg-indigo-500 selection:text-white overflow-x-hidden ${
       darkMode ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
@@ -38,15 +72,18 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
           
           {/* Logo */}
-          <Logo />
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-tr from-indigo-600 to-purple-600 text-white p-2.5 rounded-xl font-bold text-base shadow-md shadow-indigo-500/20">P2P</div>
+            <span className="text-xl sm:text-2xl font-extrabold tracking-tight">
+              P2P <span className="text-indigo-600 dark:text-indigo-400">Learn</span>
+            </span>
+          </div>
 
           {/* Desktop Nav Links */}
-          {/* Home.jsx ውስጥ ያሉት ናቭባር ሊንኮች እንደዚህ መሆን አለባቸው */}
-               {/* Home.jsx ውስጥ ያሉት ናቭባር ሊንኮች እንደዚህ መሆን አለባቸው */}
-<div className="hidden md:flex items-center gap-8 text-md font-medium">
-  <Link to="/" className="text-indigo-300 font-bold">Home</Link>
-  <Link to="/how-it-works" className="hover:text-indigo-600 transition">How It Works</Link>
-</div>
+          <div className="hidden md:flex items-center gap-8 text-md font-medium">
+            <Link to="/" className="text-indigo-600 dark:text-indigo-400 font-bold">Home</Link>
+            <Link to="/how-it-works" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">How It Works</Link>
+          </div>
 
           {/* Right Actions */}
           <div className="hidden md:flex items-center gap-4">
@@ -79,7 +116,7 @@ export default function Home() {
         {mobileMenuOpen && (
           <div className={`md:hidden border-b px-6 py-4 space-y-3 shadow-xl ${darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
             <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-indigo-600">Home</Link>
-           <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">How It Works</Link>
+            <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">How It Works</Link>
             <div className="pt-3 border-t border-gray-100 dark:border-slate-800 flex gap-3">
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold border rounded-lg">Login</Link>
               <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg">Register</Link>
@@ -145,48 +182,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-    {/* Get in Touch / Contact Section */}
+      {/* Get in Touch / Contact Section */}
       <section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}`}>
         <div className="max-w-4xl mx-auto px-6 text-center">
           <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold uppercase tracking-wider border border-indigo-500/20">Get in Touch</span>
           <h2 className="text-3xl font-extrabold mt-4 mb-3 tracking-tight">Have Questions or Feedback?</h2>
           <p className="text-gray-400 text-sm mb-10 max-w-lg mx-auto">We'd love to hear from you. Send us a message and our team will get back to you shortly.</p>
 
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            const form = e.target;
-            const data = { name: form.name.value, email: form.email.value, message: form.message.value };
-            try {
-              console.log("Sending contact data:", data); // 👈 ዴታው መላኩን በኮንሶል ለማየት
-              // 👈 ከ Backend API ጋር መገናኘት
-              const res = await API.post("/contact", data);
-              alert(res.data.message);
-              form.reset();
-            } catch (err) {
-              console.error("Contact error response:", err.response); // 👈 ኤረሩን በግልጽ ለማየት
-              alert(err.response?.data?.message || "Failed to send message.");
-            }
-          }} className="space-y-4 text-left max-w-xl mx-auto">
+          {/* Success / Error Banners */}
+          {successMsg && <div className="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3 rounded-xl max-w-xl mx-auto font-semibold">{successMsg}</div>}
+          {errorMsg && <div className="mb-6 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl max-w-xl mx-auto font-semibold">{errorMsg}</div>}
+
+          <form onSubmit={handleContactSubmit} className="space-y-4 text-left max-w-xl mx-auto">
             <div>
               <label className="block text-xs font-semibold mb-1">Your Name</label>
-              <input type="text" name="name" placeholder="Abebe Kassa" required className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} />
+              <input 
+                type="text" 
+                name="name" 
+                value={formData.name}
+                onChange={handleChange}
+                placeholder="Abebe Kassa" 
+                required 
+                className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
+              />
             </div>
             <div>
               <label className="block text-xs font-semibold mb-1">Email Address</label>
-              <input type="email" name="email" placeholder="name@example.com" required className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} />
+              <input 
+                type="email" 
+                name="email" 
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="name@example.com" 
+                required 
+                className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
+              />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-gray-900 mb-1">Message</label>
-              <textarea name="message" placeholder="Type your message here..." required rows="4" className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} />
+              <label className="block text-xs font-semibold mb-1">Message</label>
+              <textarea 
+                name="message" 
+                value={formData.message}
+                onChange={handleChange}
+                placeholder="Type your message here..." 
+                required 
+                rows="4" 
+                className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
+              />
             </div>
-            <button type="submit" className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg text-sm">
-              Send Message
+            <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg text-sm disabled:opacity-50">
+              {loading ? "Sending Message..." : "Send Message"}
             </button>
           </form>
         </div>
       </section>
-     <Footer />
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
