@@ -2,24 +2,15 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
-const User = require("../models/User");
 const { Resend } = require("resend");
+const User = require("../models/User");
 
 const router = express.Router();
 
-// 👈 የ Gmail SMTP ማዋቀር
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_APP_PASSWORD,
-  },
-});
+// 👈 Resendን በ API Key ማዋቀር (Render ላይ 100% የሚሰራ)
+const resend = new Resend(process.env.RESEND_API_KEY);
 
-// 1. REGISTER ROUTE (OTP ጄኔሬት አድርጎ ወደ ጂሜይል የሚልክ)
+// 1. REGISTER ROUTE (OTP በ Resend አፈላልጎ መላክ)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -60,30 +51,30 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-// Register ሪውት ውስጥ ኢሜይል ሲላክ:
-try {
-   const data = await resend.emails.send({
-     from: "P2P Learn <onboarding@resend.dev>",
-     to: [user.email],
-     subject: "Email Verification OTP - P2P Learn",
-     html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-              <h2>Welcome to P2P Learn, ${user.name}!</h2>
-              <p>Your email verification code is:</p>
-              <h1 style="color: #4f46e5; letter-spacing: 2px;">${otpCode}</h1>
-              <p>This code expires in 10 minutes.</p>
-            </div>`,
-   });
-   console.log("Resend API Success Response:", data);
- } catch (resendErr) {
-   console.error("CRITICAL RESEND API ERROR:", resendErr);
- }
+    // 👈 ሪዘንድን በመጠቀም እውነተኛውን የ OTP ኮድ ወደ ዩሰሩ ኢሜይል መላክ
+    try {
+      const data = await resend.emails.send({
+        from: "P2P Learn <onboarding@resend.dev>",
+        to: [user.email],
+        subject: "Email Verification OTP - P2P Learn",
+        html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
+                 <h2 style="color: #4f46e5;">Welcome to P2P Learn, ${user.name}!</h2>
+                 <p>Your email verification code is:</p>
+                 <div style="background: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; font-size: 24px; font-weight: bold; color: #4f46e5; letter-spacing: 4px;">
+                   ${otpCode}
+                 </div>
+                 <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This code expires in 10 minutes. If you did not request this, please ignore this email.</p>
+               </div>`,
+      });
+      console.log("Resend API Success Response:", data);
+    } catch (resendErr) {
+      console.error("CRITICAL RESEND API ERROR:", resendErr);
+    }
 
     return res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",
       email: user.email,
-      otpCode: otpCode // 👈 ዳታቤዝ ውስጥ የተመዘገበውን ትክክለኛ ኮድ መመለስ
+      otpCode: otpCode
     });
 
   } catch (error) {
@@ -185,9 +176,9 @@ router.post("/forgot-password", async (req, res) => {
 
     const resetUrl = `https://p2plearn.vercel.app/reset-password/${token}`;
 
-    await transporter.sendMail({
-      to: user.email,
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: "P2P Learn <onboarding@resend.dev>",
+      to: [user.email],
       subject: "Password Reset - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                <h2>Password Reset Request</h2>
