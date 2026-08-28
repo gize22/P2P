@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
+import emailjs from "@emailjs/browser"; // 👈 EmailJS ማምጣት
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -30,10 +31,28 @@ export default function Register() {
         skillsToLearn: formData.skillsToLearn.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
+      // 1. ሪኩዌስት ወደ ባክኤንድ መላክ (ባክኤንዱ ራሱ OTP ጄኔሬት አድርጎ ሪስፖንስ ይመልሳል)
       const res = await API.post("/auth/register", payload);
-      alert(res.data.message);
+      const serverOtp = res.data.otpCode; // 👈 ከባክኤንድ የመለሰው ትክክለኛው ኮድ
+
+      // 2. 👈 አሁን በእውነተኛዎቹ መለያዎችህ EmailJS በመጠቀም ኮዱን መላክ
+      const templateParams = {
+        to_email: formData.email,
+        to_name: formData.name,
+        otp_code: serverOtp,
+      };
+
+      await emailjs.send(
+        "service_j2li63d",
+        "template_ucwyugk",
+        templateParams,
+        "MlXVeB-ucnRusJ3kv"
+      );
+
+      alert("Registration successful! Check your email for the verification code.");
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
