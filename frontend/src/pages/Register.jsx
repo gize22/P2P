@@ -48,7 +48,7 @@ export default function Register() {
 
       await emailjs.send(
         "service_j2li63d",   
-        "template_3ljr5bbb",
+        "template_ucwyugk",
         templateParams,
         "MlXVeB-ucnRusJ3kv"     
       );
