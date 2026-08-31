@@ -3,7 +3,7 @@ import API from "../api";
 import { useParams, useNavigate, Link } from "react-router-dom";
 
 export default function ResetPassword() {
-  const { token } = useParams(); // ከ URL ላይ ቶከኑን መቀበል
+  const { token } = useParams();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -33,16 +33,16 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex justify-center items-center px-4">
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 py-12 relative text-slate-100">
       <div className="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-block bg-gradient-to-tr from-indigo-500 to-purple-500 text-white p-3 rounded-2xl font-bold text-lg mb-3 shadow-lg">P2P</Link>
+          <Link to="/" className="inline-block bg-gradient-to-tr from-indigo-500 to-purple-500 text-white p-3 rounded-2xl font-bold text-lg mb-3 shadow-lg shadow-indigo-500/20">P2P</Link>
           <h2 className="text-2xl font-extrabold text-white tracking-tight">Reset Password</h2>
           <p className="text-slate-400 text-xs mt-1">Enter your new secure password below</p>
         </div>
 
-        {error && <div className="mb-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl text-center">{error}</div>}
-        {message && <div className="mb-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3 rounded-xl text-center">{message}</div>}
+        {error && <div className="mb-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl text-center font-medium">{error}</div>}
+        {message && <div className="mb-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3 rounded-xl text-center font-medium">{message}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
