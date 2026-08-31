@@ -4,7 +4,11 @@ import io from "socket.io-client";
 import API from "../api";
 import Navbar from "../components/Navbar";
 
-const socket = io("https://p2plearn.onrender.com/api");
+// 👈 ከ /api ውጭ በሆነው ዋናው ሊንክ መገናኘት አለበት
+const socket = io("https://p2plearn.onrender.com", {
+  transports: ["polling", "websocket"],
+  upgrade: true
+});
 
 export default function PrivateChat() {
   const { receiverId } = useParams();

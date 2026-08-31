@@ -4,8 +4,11 @@ import io from "socket.io-client";
 import API from "../api";
 import Navbar from "../components/Navbar";
 
-// 👈 1. ሶኬቱ ከ /api ውጭ በዋናው ሊንክ ብቻ መገናኘት አለበት
-const socket = io("https://p2plearn.onrender.com");
+// 👈 ከ /api ውጭ በሆነው ዋናው ሊንክ መገናኘት አለበት
+const socket = io("https://p2plearn.onrender.com", {
+  transports: ["polling", "websocket"],
+  upgrade: true
+});
 
 export default function ChatRoom() {
   const { groupId } = useParams();

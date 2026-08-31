@@ -7,7 +7,11 @@ import FindLearners from "../components/FindLearners";
 import io from "socket.io-client";
 import { useTheme } from "../ThemeContext";
 
-const socket = io("https://p2plearn.onrender.com/api");
+// 👈 ከ /api ውጭ በሆነው ዋናው ሊንክ መገናኘት አለበት
+const socket = io("https://p2plearn.onrender.com", {
+  transports: ["polling", "websocket"],
+  upgrade: true
+});
 
 export default function Dashboard() {
   const { isDark } = useTheme();
