@@ -26,8 +26,6 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 py-12 relative text-slate-100">
-      
-      {/* Back to Login Link */}
       <div className="w-full max-w-md mb-6 flex justify-start">
         <Link to="/login" className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl shadow-md">
           ← Back to Login
@@ -54,10 +52,6 @@ export default function ForgotPassword() {
             {loading ? "Sending Link..." : "Send Reset Link"}
           </button>
         </form>
-
-        <p className="mt-8 text-xs text-center text-slate-400">
-          Remembered your password? <Link to="/login" className="text-indigo-400 font-semibold hover:underline">Sign In</Link>
-        </p>
       </div>
     </div>
   );
