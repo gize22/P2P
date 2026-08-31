@@ -19,6 +19,8 @@ export default function PrivateChat() {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
+  const isDark = localStorage.getItem("theme") === "dark";
+
   const getRoomId = (id1, id2) => {
     return [id1, id2].sort().join("_");
   };
@@ -52,7 +54,6 @@ export default function PrivateChat() {
 
     // 👈 ሪል-ታይም መልእክት ሲመጣ ያለ ሪፍሬሽ በሰከንዶች ውስጥ Screen ላይ እንዲታይ
     const handleReceiveMessage = (data) => {
-      // መልእክቱ የዚህ ቻት ሩም ከሆነ ብቻ ወደ ስቴት መጨመር
       if (data.sender === receiverId || data.receiver === receiverId) {
         setMessages((prev) => {
           const exists = prev.some((msg) => msg._id === data._id);
@@ -76,6 +77,7 @@ export default function PrivateChat() {
       socket.off("messages_read");
     };
   }, [receiverId, navigate]);
+
   // አዲስ መልእክት ሲመጣ ወደታች SCROLL እንዲያደርግ
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,6 +98,44 @@ export default function PrivateChat() {
 
     socket.emit("send_private_message", messageData);
     setNewMessage("");
+  };
+
+  // 👈 1-to-1 ቻት ላይ ፋይል ወይም ፎቶ ዩፕሎድ ማድረጊያ (View & Download ⬇️ ያለው)
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !user) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await API.post("/chats/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const fileUrl = res.data.fileUrl;
+      const roomId = getRoomId(user.id, receiverId);
+
+      const messageData = {
+        sender: user.id,
+        receiver: receiverId,
+        room: roomId,
+        message: `<div class="flex items-center gap-3 bg-black/10 dark:bg-white/10 p-2.5 rounded-xl border border-black/10">
+                    <span class="text-xl">📁</span>
+                    <div class="flex flex-col">
+                      <span class="text-xs font-bold truncate max-w-[150px]">${file.name}</span>
+                      <div class="flex gap-3 mt-1">
+                        <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold hover:underline">View</a>
+                        <a href="${fileUrl}" download class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">Download ⬇️</a>
+                      </div>
+                    </div>
+                  </div>`,
+      };
+
+      socket.emit("send_private_message", messageData);
+    } catch (err) {
+      alert("Failed to upload file");
+    }
   };
 
   if (!user || !receiver) return null;
@@ -127,9 +167,13 @@ export default function PrivateChat() {
             return (
               <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
                 <div className={`relative px-3 py-2 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
-                  isMe ? "bg-[#eeffde] text-black rounded-tr-none" : "bg-white text-black rounded-tl-none border border-gray-200"
+                  isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
                 }`}>
-                  <p className="pr-12 pb-1 break-words">{msg.message}</p>
+                  {msg.message.includes("<div") ? (
+                    <div dangerouslySetInnerHTML={{ __html: msg.message }} />
+                  ) : (
+                    <p className="pr-12 pb-1 break-words">{msg.message}</p>
+                  )}
                   
                   {/* Time and Seen (✓✓) Symbol */}
                   <div className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-gray-500 select-none">
@@ -147,15 +191,19 @@ export default function PrivateChat() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Telegram Message Input Form */}
+        {/* Telegram Message Input Form with File Upload (📎) */}
         <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-200 flex items-center gap-2">
+          <input type="file" onChange={handleFileUpload} className="hidden" id="privateFileInput" />
+          <label htmlFor="privateFileInput" className="cursor-pointer p-2 text-gray-400 hover:text-[#2b5278] text-lg" title="Attach File">
+            📎
+          </label>
+
           <input
             type="text"
             placeholder="Type a private message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            // 👈 ጽሁፉ በግልጽ ጥርት ብሎ እንዲታይ የተደረገ inputStyle
-            className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-white rounded-full focus:outline-none focus:ring-1 focus:ring-[#2b5278] text-sm placeholder-gray-400"
+            className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-white rounded-full focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2b5278] text-sm placeholder-gray-400"
           />
           <button type="submit" className="bg-[#2b5278] text-white p-2.5 rounded-full hover:bg-[#1e3a5f] transition shadow">
             <svg className="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">

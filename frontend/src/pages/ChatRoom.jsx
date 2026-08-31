@@ -104,12 +104,16 @@ export default function ChatRoom() {
       const fileUrl = res.data.fileUrl;
       const messageData = {
         sender: user.id,
-        groupId: groupId,
-        message: `<div class="flex items-center gap-2 p-2 rounded border">
-                    <span>📄</span>
-                    <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 font-semibold text-xs hover:text-blue-800">
-                      View/Download: ${file.name}
-                    </a>
+        // (ለግሩፕ groupId፣ ለፕራይቬት ቻት ደግሞ receiver ይጠቀማል)
+        message: `<div class="flex items-center gap-3 bg-black/10 dark:bg-white/10 p-2.5 rounded-xl border border-black/10">
+                    <span class="text-xl">📊</span>
+                    <div class="flex flex-col">
+                      <span class="text-xs font-bold truncate max-w-[150px]">${file.name}</span>
+                      <div class="flex gap-3 mt-1">
+                        <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold hover:underline">View</a>
+                        <a href="${fileUrl}" download class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">Download ⬇️</a>
+                      </div>
+                    </div>
                   </div>`,
       };
 
