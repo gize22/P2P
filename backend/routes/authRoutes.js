@@ -3,8 +3,14 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/User");
+const { Resend } = require("resend");
+
 
 const router = express.Router();
+
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 
 // 1. REGISTER ROUTE (ባክኤንዱ OTP ጄኔሬት አድርጎ ለፍሮንተንድ ይመልሳል)
 router.post("/register", async (req, res) => {
