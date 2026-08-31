@@ -2,17 +2,15 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const { Resend } = require("resend"); // 👈 ሬሰንድ እዚህ ጋር ተጠርቷል
 const User = require("../models/User");
-const { Resend } = require("resend");
-
 
 const router = express.Router();
 
-
+// 👈 ሬሰንድን በ API Key ማዋቀር
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-
-// 1. REGISTER ROUTE (ባክኤንዱ OTP ጄኔሬት አድርጎ ለፍሮንተንድ ይመልሳል)
+// 1. REGISTER ROUTE (OTP በ Resend መላክ)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -53,11 +51,30 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 👈 ፍሮንተንዱ EmailJS ተጠቅሞ እንዲልክ የ otpCode ጄኔሬት ተደርጎ ይመለሳል
+    // 👈 በ Resend በኩል እውነተኛውን የ OTP ኮድ ወደ ዩሰሩ ኢሜይል መላክ
+    try {
+      const data = await resend.emails.send({
+        from: "P2P Learn <onboarding@resend.dev>",
+        to: [user.email],
+        subject: "Email Verification OTP - P2P Learn",
+        html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
+                 <h2 style="color: #4f46e5;">Welcome to P2P Learn, ${user.name}!</h2>
+                 <p>Your email verification code is:</p>
+                 <div style="background: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; font-size: 24px; font-weight: bold; color: #4f46e5; letter-spacing: 4px;">
+                   ${otpCode}
+                 </div>
+                 <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This code expires in 10 minutes. If you did not request this, please ignore this email.</p>
+               </div>`,
+      });
+      console.log("Resend API Success Response:", data);
+    } catch (resendErr) {
+      console.error("CRITICAL RESEND API ERROR:", resendErr);
+    }
+
     return res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",
       email: user.email,
-      otpCode: otpCode 
+      otpCode: otpCode
     });
 
   } catch (error) {
@@ -143,7 +160,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// 4. FORGOT PASSWORD ROUTE (ሊንክ በ Resend መላኪያ)
+// 4. FORGOT PASSWORD ROUTE
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -154,26 +171,23 @@ router.post("/forgot-password", async (req, res) => {
 
     const token = crypto.randomBytes(20).toString("hex");
     user.resetPasswordToken = token;
-    user.resetPasswordExpires = Date.now() + 3600000; // ለ 1 ሰዓት የሚሰራ
+    user.resetPasswordExpires = Date.now() + 3600000;
     await user.save();
 
-    // 👈 ትክክለኛው የ Vercel Live Link (ወይም ሎካል)
     const resetUrl = `https://p2plearn.vercel.app/reset-password/${token}`;
 
-    // 👈 በ Resend በኩል ሊንኩን ወደ ዩሰሩ ኢሜይል መላክ
     await resend.emails.send({
       from: "P2P Learn <onboarding@resend.dev>",
       to: [user.email],
       subject: "Password Reset - P2P Learn",
-      html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
-               <h2 style="color: #4f46e5;">Password Reset Request</h2>
-               <p>Hello ${user.name}, you requested to reset your password. Click the button below to proceed:</p>
-               <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 10px;">Reset Password</a>
-               <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This link expires in 1 hour. If you didn't request this, please ignore this email.</p>
+      html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+               <h2>Password Reset Request</h2>
+               <p>Click the button below to reset your password. This link expires in 1 hour.</p>
+               <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Reset Password</a>
              </div>`,
     });
 
-    return res.status(200).json({ message: "Password reset link sent to your email successfully!" });
+    return res.status(200).json({ message: "Password reset link sent to your email" });
   } catch (error) {
     console.error("Forgot Password Error:", error);
     return res.status(500).json({ message: "Server error", error: error.message });
