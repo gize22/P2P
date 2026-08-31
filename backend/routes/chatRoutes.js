@@ -36,19 +36,22 @@ router.get("/group/:groupId", async (req, res) => {
 });
 
 // 2. FILE / IMAGE UPLOAD API
+// 4. FILE / IMAGE UPLOAD API (በፍጹም የማይሳሳት Dynamic URL አሰራር)
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const fileUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+    // 👈 ሎካልም ይሁን ላይቭ (Render) ራሱ አድራሻውን በራስ ሰር አስተካክሎ እንዲይዝ ማድረግ
+    const baseUrl = `${req.protocol}://${req.get("host")}`;
+    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+
     res.status(200).json({ fileUrl });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
-
 // 3. 👈 GET 1-to-1 Chat History (አጠቃላይ ፓራሜትር ያለው ሪውት ከታች ይሁን)
 router.get("/:userId/:otherId", async (req, res) => {
   try {
