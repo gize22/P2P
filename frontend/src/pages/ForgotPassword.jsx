@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import API from "../api";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import emailjs from "@emailjs/browser"; // 👈 EmailJS ማምጣት
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,9 +17,29 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
+      // 1. ዩሰሩ ዳታቤዝ ውስጥ መኖሩን በ Backend ማረጋገጥ
       const res = await API.post("/auth/forgot-password", { email });
-      setMessage(res.data.message || "Password reset link sent to your email.");
+      const token = res.data.token; // 👈 ከ ባክኤንድ የመለሰው ቶከን
+
+      // 2. 👈 EmailJS በመጠቀም የሪሴት ሊንኩን በቀጥታ መላክ
+      const resetUrl = `https://p2plearn.vercel.app/reset-password/${token}`;
+      
+      const templateParams = {
+        to_email: email,
+        to_name: "Student",
+        reset_link: resetUrl,
+      };
+
+      await emailjs.send(
+        "service_j2li63d",   // የእርስዎ ትክክለኛ Service ID
+        "template_ucwyugk",  // የእርስዎ ትክክለኛ Template ID (ወይም አዲስ የፓስወርድ ሪሴት ቴምፕሌት)
+        templateParams,
+        "MlXVeB-ucnRusJ3kv"  // የእርስዎ ትክክለኛ Public Key
+      );
+
+      setMessage("Password reset link sent to your email successfully!");
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Something went wrong.");
     } finally {
       setLoading(false);
@@ -48,7 +70,7 @@ export default function ForgotPassword() {
             <input type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition" />
           </div>
 
-          <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30 text-sm mt-2 disabled:opacity-50">
+          <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg text-sm mt-2 disabled:opacity-50">
             {loading ? "Sending Link..." : "Send Reset Link"}
           </button>
         </form>
