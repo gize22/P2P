@@ -203,7 +203,7 @@ export default function PrivateChat() {
             placeholder="Type a private message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-900 text-gray-900 dark:text-white rounded-full focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2b5278] text-sm placeholder-gray-400"
+            className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-900 text-black dark:text-white rounded-full focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2b5278] text-sm placeholder-gray-400"
           />
           <button type="submit" className="bg-[#2b5278] text-white p-2.5 rounded-full hover:bg-[#1e3a5f] transition shadow">
             <svg className="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
