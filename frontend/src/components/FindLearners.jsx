@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import { useTheme } from "../ThemeContext";
+import { useNavigate } from "react-router-dom";
+
 export default function FindLearners({ learners, loading, onSearch, onSendRequest }) {
 
     const { isDark } = useTheme();
+    const navigate = useNavigate();
   const [searchSkill, setSearchSkill] = useState("");
 
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
@@ -40,10 +43,18 @@ export default function FindLearners({ learners, loading, onSearch, onSendReques
                   <p className="text-xs text-gray-300 mt-3"><strong>Can Teach:</strong> <span className="text-emerald-400">{learner.skillsToTeach?.join(", ") || "None"}</span></p>
                   <p className="text-xs text-gray-300 mt-1"><strong>Wants to Learn:</strong> <span className="text-purple-400">{learner.skillsToLearn?.join(", ") || "None"}</span></p>
                 </div>
-                <div className="mt-5 flex justify-end">
-                  <button onClick={() => onSendRequest(learner._id, learner.skillsToTeach?.[0])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
-                    Send Request
-                  </button>
+               <div className="mt-5 flex justify-end">
+                  {learner.role === 'admin' ? (
+                    /* 👈 አድሚን ከሆነ ሪኩዌስት ሳይጠብቅ ቀጥታ ቻት መክፈቻ */
+                    <button onClick={() => navigate(`/private-chat/${learner._id}`)} className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
+                      💬 Chat with Admin
+                    </button>
+                  ) : (
+                    /* 👈 ተራ ተማሪ ከሆነ መደበኛው ሪኩዌስት በተን */
+                    <button onClick={() => onSendRequest(learner._id, learner.skillsToTeach?.[0])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
+                      Send Request
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
