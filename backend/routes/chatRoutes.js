@@ -8,18 +8,6 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 const router = express.Router();
 
-// Multer Configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  },
-});
-const upload = multer({ storage: storage });
-
-
 // 👈 Cloudinary ማዋቀር
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -38,6 +26,7 @@ const storage = new CloudinaryStorage({
   },
 });
 
+  const upload = multer({ storage: storage });
 // 1. 👈 GET Study Group Chat History (የተለየ ፕሪፊክስ ያለው ሪውት ሁልጊዜ መጀመሪያ መሆን አለበት!)
 router.get("/group/:groupId", async (req, res) => {
   try {
