@@ -302,11 +302,18 @@ export default function AdminDashboard() {
                       <td className={`py-3 px-4 ${tableTextSub}`}>{u.email}</td>
                       <td className="py-3 px-4"><span className="text-xs bg-indigo-500/10 text-indigo-400 px-2.5 py-1 rounded-full">{u.role}</span></td>
                       <td className="py-3 px-4 text-right flex justify-end gap-2">
-                          <button onClick={() => navigate(`/private-chat/${otherUserId}`)} className="bg-teal-600 text-white px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1">
-                            <span>Direct Chat</span>
-                           </button>
+                    
                         {u.role !== 'admin' && (
+                          <>
+                          {/* 👈 አድሚኑ በቀጥታ ከ ተማሪው ጋር ቻት መክፈቻ */}
+                        <button  onClick={() => navigate(`/private-chat/${u._id}`)} 
+                          className="bg-teal-500/15 text-teal-400 px-3 py-1 rounded-lg text-xs hover:bg-teal-500 hover:text-white transition">
+                          Chat
+                        </button>
+
+
                           <button onClick={() => handleDeleteUser(u._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1 rounded-lg text-xs">Delete</button>
+                          </>
                         )}
                       </td>
                     </tr>
