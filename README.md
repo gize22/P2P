@@ -67,3 +67,36 @@ P2P/
     │   ├── pages/      # Main views (Home, Login, Register, VerifyOTP, Dashboard, Groups, ChatRoom, PrivateChat, Community, Profile, AdminDashboard, HowItWorks, ForgotPassword, ResetPassword)
     │   ├── api.js      # Axios configuration
     │   └── ThemeContext.jsx # Global Dark/Light mode provider
+
+⚙️ Installation & Setup Locally
+Prerequisites
+Node.js installed on your machine.
+MongoDB Atlas account (or local MongoDB).
+1. Clone the Repository
+git clone https://github.com/gize22/P2P.git
+cd P2P
+2. Backend Setup
+cd backend
+npm install
+Create a .env file inside the backend/ folder and add your environment variables:
+PORT=5000
+MONGO_URI=your_mongodb_atlas_connection_string
+JWT_SECRET=your_jwt_secret_key
+EMAIL_USER=your_email@gmail.com
+EMAIL_APP_PASSWORD=your_gmail_app_password
+RESEND_API_KEY=your_resend_api_key
+Run the backend server:
+node server.js
+3. Frontend Setup
+Open a new terminal window and navigate to the frontend directory:
+cd frontend
+npm install
+Create a .env file inside the frontend/ folder (optional for local development):
+VITE_API_URL=http://localhost:5000/api
+Run the frontend development server:
+npm run dev
+🚀 Deployment
+Backend: Deployed on Render (Web Service).
+Frontend: Deployed on Vercel.
+👨‍💻 Author
+GitHub: @gize22
