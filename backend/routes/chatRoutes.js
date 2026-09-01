@@ -4,6 +4,7 @@ const path = require("path");
 const mongoose = require("mongoose");
 const Message = require("../models/Message");
 const User = require("../models/User");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
 
 const router = express.Router();
 
@@ -17,6 +18,25 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+
+
+// 👈 Cloudinary ማዋቀር
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// 👈 ፋይሎችን በቀጥታ ወደ ክላውድ (Cloudinary) የሚጭን ስቶሬጅ
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    return {
+      folder: "p2p_learning_uploads", // በክላውድ ውስጥ የሚፈጠረው ፎልደር ስም
+      resource_type: "auto", // ማንኛውንም ፋይል (Image, PDF, PPT, EXE) በራሱ አውቆ እንዲቀበል
+    };
+  },
+});
 
 // 1. 👈 GET Study Group Chat History (የተለየ ፕሪፊክስ ያለው ሪውት ሁልጊዜ መጀመሪያ መሆን አለበት!)
 router.get("/group/:groupId", async (req, res) => {
@@ -36,22 +56,24 @@ router.get("/group/:groupId", async (req, res) => {
 });
 
 // 2. FILE / IMAGE UPLOAD API
-// 4. FILE / IMAGE UPLOAD API (በፍጹም የማይሳሳት Dynamic URL አሰራር)
+// 4. FILE / IMAGE UPLOAD API (ወደ ክላውድ የሚጭን ሪውት)
 router.post("/upload", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // 👈 ሎካልም ይሁን ላይቭ (Render) ራሱ አድራሻውን በራስ ሰር አስተካክሎ እንዲይዝ ማድረግ
-    const baseUrl = `${req.protocol}://${req.get("host")}`;
-    const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+    // 👈 Cloudinary የሰጠው ቋሚ የ HTTPS ሊንክ
+    const fileUrl = req.file.path; 
 
     res.status(200).json({ fileUrl });
   } catch (error) {
+    console.error("Cloudinary upload error:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 });
+
+
 // 3. 👈 GET 1-to-1 Chat History (አጠቃላይ ፓራሜትር ያለው ሪውት ከታች ይሁን)
 router.get("/:userId/:otherId", async (req, res) => {
   try {
