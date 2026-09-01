@@ -49,9 +49,18 @@ router.delete("/users/:id", async (req, res) => {
   }
 });
 
-// 4. PROMOTE USER TO ADMIN
+/// 4. PROMOTE USER TO ADMIN (ከ 3 አድሚኖች በላይ እንዳይበልጡ የሚከለክል ጥብቅ ሪውት)
 router.put("/promote/:id", async (req, res) => {
   try {
+    // 1. አሁን ዳታቤዝ ውስጥ ያሉት አድሚኖች ብዛት ስንት እንደሆኑ መቆጠር
+    const adminCount = await User.countDocuments({ role: "admin" });
+
+    if (adminCount >= 3) {
+      return res.status(400).json({ 
+        message: "Restriction Error: Maximum limit of 3 administrators reached! You cannot promote more users." 
+      });
+    }
+
     const user = await User.findById(req.params.id);
     if (!user) {
       return res.status(404).json({ message: "User not found" });

@@ -86,13 +86,14 @@ export default function AdminDashboard() {
   };
 
   const handleMakeAdmin = async (id) => {
-    if (window.confirm("Promote user to Admin?")) {
+    if (window.confirm("Promote this user to Admin?")) {
       try {
-        await API.put(`/admin/promote/${id}`);
-        alert("Promoted to Admin!");
+        const res = await API.put(`/admin/promote/${id}`);
+        alert(res.data.message || "Promoted to Admin!");
         fetchAllAdminData();
       } catch (err) {
-        alert("Failed to promote");
+        // 👈 ባክኤንድ የሚመልሰውን የ ገደብ ኤረር በግልጽ ማሳየት
+        alert(err.response?.data?.message || "Failed to promote user");
       }
     }
   };
@@ -309,6 +310,12 @@ export default function AdminDashboard() {
                         <button  onClick={() => navigate(`/private-chat/${u._id}`)} 
                           className="bg-teal-500/15 text-teal-400 px-3 py-1 rounded-lg text-xs hover:bg-teal-500 hover:text-white transition">
                           Chat
+                        </button>
+                          <button 
+                          onClick={() => handleMakeAdmin(u._id)} 
+                          className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-lg text-xs hover:bg-purple-500 hover:text-white transition"
+                        >
+                          Make Admin
                         </button>
 
 
