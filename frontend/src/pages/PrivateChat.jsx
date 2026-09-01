@@ -106,6 +106,15 @@ export default function PrivateChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+
+
+  const handleBack = () => {
+  if (user?.role === "admin") {
+    navigate("/admin");
+  } else {
+    navigate("/dashboard");
+  }
+};
   const sendMessage = (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !user) return;
@@ -172,14 +181,22 @@ export default function PrivateChat() {
       <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col bg-[#e2f0d9] shadow-lg rounded-xl overflow-hidden my-4 border border-gray-300">
         
         {/* Telegram Header */}
-        <div className="bg-[#2b5278] text-white p-3 flex items-center gap-3 shadow-md">
-          <div className="w-10 h-10 rounded-full bg-[#4a76a8] text-white flex items-center justify-center font-bold text-lg">
-            {receiver.name.charAt(0).toUpperCase()}
+        {/* Telegram Header */}
+        <div className="bg-[#2b5278] text-white p-3 flex items-center justify-between shadow-md">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#4a76a8] text-white flex items-center justify-center font-bold text-lg">
+              {receiver.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <h2 className="text-base font-semibold leading-tight">{receiver.name}</h2>
+              <p className="text-[11px] text-gray-200">online</p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base font-semibold leading-tight">{receiver.name}</h2>
-            <p className="text-[11px] text-gray-200">online</p>
-          </div>
+
+          {/* 👈 የ Back አዝራር እዚህ ሄደር ውስጥ ይገባል */}
+          <button onClick={handleBack} className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl transition font-medium">
+            ← Back
+          </button>
         </div>
 
         {/* Messages History (Telegram Wallpaper style background) */}

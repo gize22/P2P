@@ -58,9 +58,25 @@ export default function Dashboard() {
         alert("You received a new learning request!");
       });
 
-      socket.on("receive_notification", () => {
-        alert("New message received! Check your chats.");
+      socket.on("send_private_message", async (data) => {
+    try {
+      const { sender, receiver, room, message } = data;
+      let newMessage = await Message.create({ sender, receiver, message });
+      newMessage = await newMessage.populate("sender", "name"); // 👈 ስሙን ማምጣት
+
+      io.to(room).emit("receive_message", newMessage);
+
+      // 👈 ኖቲፊኬሽኑ ላይ የላኪውን ስም በግልጽ መላክ
+      io.to(receiver.toString()).emit("receive_notification", {
+        senderId: sender,
+        senderName: newMessage.sender.name,
+        message: message,
+        type: "private_chat"
       });
+    } catch (error) {
+      console.error("Private message error:", error);
+    }
+  });
 
       socket.on("receive_announcement", (ann) => {
         setAnnouncements((prev) => [ann, ...prev]);

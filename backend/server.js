@@ -96,23 +96,23 @@ io.on("connection", (socket) => {
   });
 
   // 1-to-1 (Private) ቻት መልእክት ሲላክ
-  socket.on("send_private_message", async (data) => {
+socket.on("send_private_message", async (data) => {
     try {
       const { sender, receiver, room, message } = data;
-      const newMessage = await Message.create({ sender, receiver, message });
+      let newMessage = await Message.create({ sender, receiver, message });
+      newMessage = await newMessage.populate("sender", "name"); // 👈 ስሙን ማምጣት
 
-      // 1. ለቻት ሩሙ መልእክቱን መድረስ
       io.to(room).emit("receive_message", newMessage);
 
-      // 2. ተቀባዩ ቻት ውስጥ ባይሆንም እንኳ ኖቲፊኬሽን እንዲደርሰው
+      // 👈 ኖቲፊኬሽኑ ላይ የላኪውን ስም በግልጽ መላክ
       io.to(receiver.toString()).emit("receive_notification", {
-        sender,
-        message,
+        senderId: sender,
+        senderName: newMessage.sender.name,
+        message: message,
         type: "private_chat"
       });
-
     } catch (error) {
-      console.error("Private message save error:", error);
+      console.error("Private message error:", error);
     }
   });
 
