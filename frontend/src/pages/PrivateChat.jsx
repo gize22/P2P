@@ -195,7 +195,7 @@ export default function PrivateChat() {
 
           {/* 👈 የ Back አዝራር እዚህ ሄደር ውስጥ ይገባል */}
           <button onClick={handleBack} className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl transition font-medium">
-            ← Back
+            ← Back to Admin page
           </button>
         </div>
 
