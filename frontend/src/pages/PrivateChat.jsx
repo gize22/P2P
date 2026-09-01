@@ -173,16 +173,17 @@ export default function PrivateChat() {
 
   if (!user || !receiver) return null;
 
-  return (
-    <div className="min-h-screen bg-[#e7efe9] flex flex-col">
-      <Navbar user={user} />
+return (
+    <div className={`min-h-screen w-full flex flex-col p-2 sm:p-6 transition-colors duration-200 ${isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900"}`}>
+      
+      {/* 👈 ዩሰሩ አድሚን ካልሆነ (ማለትም ተማሪ ከሆነ) Navbar ይታየዋል፤ አድሚን ከሆነ ግን አይታየውም */}
+      {user.role !== "admin" && <Navbar user={user} />}
 
       {/* Telegram Style Chat Box Container */}
-      <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col bg-[#e2f0d9] shadow-lg rounded-xl overflow-hidden my-4 border border-gray-300">
+      <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col bg-[#e2f0d9] dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden my-4 border border-gray-300 dark:border-slate-800">
         
         {/* Telegram Header */}
-        {/* Telegram Header */}
-        <div className="bg-[#2b5278] text-white p-3 flex items-center justify-between shadow-md">
+        <div className="bg-[#2b5278] text-white p-3.5 sm:p-4 flex items-center justify-between shadow-md">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#4a76a8] text-white flex items-center justify-center font-bold text-lg">
               {receiver.name.charAt(0).toUpperCase()}
@@ -193,9 +194,8 @@ export default function PrivateChat() {
             </div>
           </div>
 
-          {/* 👈 የ Back አዝራር እዚህ ሄደር ውስጥ ይገባል */}
-          <button onClick={handleBack} className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl transition font-medium">
-            ← Back to Admin page
+          <button onClick={handleBack} className="text-xs bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-xl transition font-medium">
+            ← Back
           </button>
         </div>
 
