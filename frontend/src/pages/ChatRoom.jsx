@@ -110,41 +110,42 @@ export default function ChatRoom() {
   };
 
   // ምስል ወይም ፋይል ዩፕሎድ ለማድረግ
-  const handleFileUpload = async (e) => {
+  // 👈 ፋይሉን በቀጥታ ወደ Base64 (Data URL) የሚቀይር ንጹህ ፊንክሽን
+  const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file || !user) return;
 
-    const formData = new FormData();
-    formData.append("file", file);
+    // ፋይሉ ከ 2MB በላይ ከሆነ ማስጠንቀቂያ መስጠት (ለ ዳታቤዝ ጥንቃቄ)
+    if (file.size > 2 * 1024 * 1024) {
+      alert("File size should be less than 2MB for direct upload.");
+      return;
+    }
 
-    try {
-      const res = await API.post("/chats/upload", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      const fileUrl = res.data.fileUrl;
-      const roomId = getRoomId(user.id, receiverId);
-
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      const base64String = reader.result;
+      
       const messageData = {
         sender: user.id,
-        receiver: receiverId,
-        room: roomId,
-        message: `<div class="flex items-center gap-3 bg-black/10 dark:bg-white/10 p-2.5 rounded-xl border border-black/10">
-                    <span class="text-xl">📁</span>
-                    <div class="flex flex-col">
+        groupId: groupId,
+        message: `<div class="flex flex-col gap-1 bg-black/10 dark:bg-white/10 p-2.5 rounded-xl border border-black/10">
+                    <div class="flex items-center gap-2">
+                      <span>📎</span>
                       <span class="text-xs font-bold truncate max-w-[150px]">${file.name}</span>
-                      <div class="flex gap-3 mt-1">
-                        <a href="${fileUrl}" target="_blank" rel="noopener noreferrer" class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold hover:underline">View</a>
-                        <a href="${fileUrl}" download class="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold hover:underline">Download ⬇️</a>
-                      </div>
                     </div>
+                    <a href="${base64String}" download="${file.name}" class="text-[11px] text-blue-600 dark:text-blue-400 font-semibold hover:underline mt-1">
+                      Download File ⬇️
+                    </a>
                   </div>`,
       };
 
       socket.emit("send_message", messageData);
-    } catch (err) {
-      alert("Failed to upload file");
-    }
+    };
+    reader.onerror = (error) => {
+      console.error("File reading error:", error);
+      alert("Failed to read file.");
+    };
   };
 
   if (!user) return null;
