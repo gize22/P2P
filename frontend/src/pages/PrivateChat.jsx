@@ -192,9 +192,10 @@ export default function PrivateChat() {
         </div>
 
         {/* Telegram Message Input Form with File Upload (📎) */}
-        <form onSubmit={sendMessage} className="p-3 bg-white border-t border-gray-200 flex items-center gap-2">
+        {/* Telegram Message Input Form */}
+        <form onSubmit={sendMessage} className="p-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2">
           <input type="file" onChange={handleFileUpload} className="hidden" id="privateFileInput" />
-          <label htmlFor="privateFileInput" className="cursor-pointer p-2 text-gray-400 hover:text-[#2b5278] text-lg" title="Attach File">
+          <label htmlFor="privateFileInput" className="cursor-pointer p-2 text-gray-500 dark:text-gray-400 hover:text-[#2b5278] text-lg" title="Attach File">
             📎
           </label>
 
@@ -203,12 +204,11 @@ export default function PrivateChat() {
             placeholder="Type a private message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-slate-900 text-black dark:text-white rounded-full focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#2b5278] text-sm placeholder-gray-400"
+            // 👈 የጽሁፍ ከለሩ ጥቁር/ነጭ ሆኖ ከባክግራውንድ ጋር ፈጽሞ እንዳይመሳሰል የተደረገ ጠንካራ ስታይል
+            className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
           />
-          <button type="submit" className="bg-[#2b5278] text-white p-2.5 rounded-full hover:bg-[#1e3a5f] transition shadow">
-            <svg className="w-5 h-5 rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-            </svg>
+          <button type="submit" className="bg-[#2b5278] text-white px-5 py-2.5 rounded-full hover:bg-[#1e3a5f] transition shadow font-medium text-xs">
+            Send
           </button>
         </form>
 

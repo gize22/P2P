@@ -169,7 +169,7 @@ export default function ChatRoom() {
         </div>
 
         {/* Message Input Form */}
-        <form onSubmit={sendMessage} className={`p-3 border-t flex items-center gap-2 ${bgCard}`}>
+        <form onSubmit={sendMessage} className={`p-3 border-t flex items-center gap-2 ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
           <input type="file" onChange={handleFileUpload} className="hidden" id="groupFileInput" />
           <label htmlFor="groupFileInput" className="cursor-pointer p-2 text-gray-400 hover:text-indigo-500 text-lg" title="Attach File">
             📎
@@ -180,13 +180,13 @@ export default function ChatRoom() {
             placeholder="Type a message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            className={`flex-1 px-4 py-2.5 rounded-full text-sm focus:outline-none border ${inputStyle}`}
+            // 👈 ጽሁፉ በሞባይልም ሆነ በፒሲ በጥርት እንዲታይ
+            className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
           />
           <button type="submit" className="bg-[#2b5278] hover:bg-[#1e3a5f] text-white px-5 py-2.5 rounded-full text-sm font-medium shadow">
             Send
           </button>
         </form>
-
       </div>
     </div>
   );
