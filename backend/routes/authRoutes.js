@@ -68,7 +68,7 @@ router.post("/register", async (req, res) => {
     // 👈 በ Brevo SMTP በኩል በስተጀርባ ኢሜል መላክ
     transporter.sendMail({
       to: user.email,
-      from: process.env.BREVO_SMTP_USER, // ከእርስዎ የ Brevo አካውንት ኢሜል ይላካል
+      from: "gizachewkassa22@gmail.com", // ከእርስዎ የ Brevo አካውንት ኢሜል ይላካል
       subject: "Email Verification OTP - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
                <h2>Welcome to P2P Learn, ${user.name}!</h2>
@@ -194,7 +194,7 @@ router.post("/forgot-password", async (req, res) => {
 
     transporter.sendMail({
       to: user.email,
-      from: process.env.BREVO_SMTP_USER,
+      from: "gizachewkassa22@gmail.com",
       subject: "Password Reset - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
                <h2>Password Reset Request</h2>
