@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import API from "../api";
-import { Link, useNavigate } from "react-router-dom";
-import emailjs from "@emailjs/browser"; // 👈 EmailJS ማምጣት
+import { Link } from "react-router-dom";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,27 +15,9 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      // 1. ዩሰሩ ዳታቤዝ ውስጥ መኖሩን በ Backend ማረጋገጥ
+      // 👈 ባክኤንድ ራሱ ቶከን አዘጋጅቶ በ Gmail SMTP በኩል ሊንኩን ይልካል
       const res = await API.post("/auth/forgot-password", { email });
-      const token = res.data.token; // 👈 ከ ባክኤንድ የመለሰው ቶከን
-
-      // 2. 👈 EmailJS በመጠቀም የሪሴት ሊንኩን በቀጥታ መላክ
-      const resetUrl = `https://p2plearn.vercel.app/reset-password/${token}`;
-      
-      const templateParams = {
-        to_email: email,
-        to_name: "Student",
-        reset_link: resetUrl,
-      };
-
-      await emailjs.send(
-        "service_j2li63d",   // የእርስዎ ትክክለኛ Service ID
-        "template_ucwyugk",  // የእርስዎ ትክክለኛ Template ID (ወይም አዲስ የፓስወርድ ሪሴት ቴምፕሌት)
-        templateParams,
-        "MlXVeB-ucnRusJ3kv"  // የእርስዎ ትክክለኛ Public Key
-      );
-
-      setMessage("Password reset link sent to your email successfully!");
+      setMessage(res.data.message || "Password reset link sent to your email successfully!");
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Something went wrong.");

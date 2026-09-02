@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import API from "../api";
 import { useNavigate, Link } from "react-router-dom";
-import emailjs from "@emailjs/browser"; // 👈 EmailJS ማምጣት
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -31,28 +30,11 @@ export default function Register() {
         skillsToLearn: formData.skillsToLearn.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
-      // 1. ሪኩዌስት ወደ ባክኤንድ መላክ (ባክኤንዱ ራሱ OTP ጄኔሬት አድርጎ ሪስፖንስ ይመልሳል)
+      // 👈 ሪኩዌስት ወደ ባክኤንድ ሲላክ ባክኤንዱ ራሱ በ Gmail SMTP ፖስታውን ይልካል
       const res = await API.post("/auth/register", payload);
-      const serverOtp = res.data.otpCode; // 👈 ከባክኤንድ የመለሰው ትክክለኛው ኮድ
-
-      // 2. 👈 አሁን በእውነተኛዎቹ መለያዎችህ EmailJS በመጠቀም ኮዱን መላክ
-      const templateParams = {
-        to_email: formData.email,
-        to_name: formData.name,
-        otp_code: serverOtp,
-      };
-
-      await emailjs.send(
-        "service_j2li63d",
-        "template_ucwyugk",
-        templateParams,
-        "MlXVeB-ucnRusJ3kv"
-      );
-
-      alert("Registration successful! Check your email for the verification code.");
+      alert(res.data.message);
       navigate("/verify-otp", { state: { email: formData.email } });
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
@@ -110,7 +92,7 @@ export default function Register() {
             <input type="text" name="skillsToLearn" placeholder="Node.js, MongoDB" onChange={handleChange} className="w-full px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500 transition" />
           </div>
 
-          <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30 text-sm mt-4 disabled:opacity-50">
+          <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30 text-sm mt-2 disabled:opacity-50">
             {loading ? "Registering..." : "Continue to Verification"}
           </button>
         </form>
