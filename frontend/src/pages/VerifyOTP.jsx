@@ -41,13 +41,7 @@ export default function VerifyOTP() {
         {message && <div className="mb-4 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl text-center">{message}</div>}
 
         <form onSubmit={handleVerify} className="space-y-4">
-          {!location.state?.email && (
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">Your Email</label>
-              <input type="email" placeholder="name@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-sm focus:outline-none focus:border-indigo-500" />
-            </div>
-          )}
-
+          
           <div>
             <label className="block text-xs font-semibold text-slate-300 mb-1">6-Digit OTP Code</label>
             <input type="text" placeholder="123456" value={otp} onChange={(e) => setOtp(e.target.value)} maxLength="6" required className="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white text-center text-2xl tracking-widest focus:outline-none focus:border-indigo-500" />
