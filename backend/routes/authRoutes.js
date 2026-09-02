@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// 1. REGISTER ROUTE
+// 1. REGISTER ROUTE (Fast & Non-blocking email)
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -59,7 +59,14 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    await transporter.sendMail({
+    // 👈 1. መጀመሪያ ለዩዘሩ "ተሳክቷል" ብሎ ቶሎ ሪስፖንስ ይመልሳል (አይቆይም/Loading አያደርግም)
+    res.status(201).json({
+      message: "Registration successful! Please check your email for the verification code.",
+      email: user.email
+    });
+
+    // 👈 2. ኢሜሉ ከኋላ በስተጀርባ (Background) በጸጥታ ይላካል
+    transporter.sendMail({
       to: user.email,
       from: process.env.EMAIL_USER,
       subject: "Email Verification OTP - P2P Learn",
@@ -71,11 +78,10 @@ router.post("/register", async (req, res) => {
                </div>
                <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This code expires in 10 minutes.</p>
              </div>`,
-    });
-
-    return res.status(201).json({
-      message: "Registration successful! Please check your email for the verification code.",
-      email: user.email
+    }).then(() => {
+      console.log("Gmail OTP email sent successfully to:", user.email);
+    }).catch(mailErr => {
+      console.error("Gmail SMTP Error:", mailErr.message);
     });
 
   } catch (error) {
