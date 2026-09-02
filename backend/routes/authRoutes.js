@@ -2,15 +2,23 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { Resend } = require("resend"); // 👈 Resend ማምጣት
+const nodemailer = require("nodemailer"); // 👈 እንደገና Nodemailer እንጠቀማለን (ለ Brevo SMTP በጣም ምቹ ነው)
 const User = require("../models/User");
 
 const router = express.Router();
 
-// 👈 Resend በ API Key ማስጀመር
-const resend = new Resend(process.env.RESEND_API_KEY);
+// 👈 Brevo SMTP Configuration (በ Render እና Localhost ላይ 100% የሚሰራ)
+const transporter = nodemailer.createTransport({
+  host: process.env.BREVO_SMTP_HOST || "smtp-relay.brevo.com",
+  port: Number(process.env.BREVO_SMTP_PORT) || 587,
+  secure: false, // port 587 ሲሆን false መሆን አለበት
+  auth: {
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS,
+  },
+});
 
-// 1. REGISTER ROUTE (በ Resend በኩል OTP መላክ)
+// 1. REGISTER ROUTE
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password, university, skillsToTeach, skillsToLearn } = req.body;
@@ -57,12 +65,11 @@ router.post("/register", async (req, res) => {
       email: user.email
     });
 
-    // 👈 በ Resend API በኩል ኢሜል መላክ
-    // (ማስታወሻ: በነጻው ሪሰንድ አካውንት ከ onboarding@resend.dev መላክ ግዴታ ነው እስከሚያስተካክሉት)
-    resend.emails.send({
-      from: 'P2P Learn <onboarding@resend.dev>',
-      to: [user.email],
-      subject: 'Email Verification OTP - P2P Learn',
+    // 👈 በ Brevo SMTP በኩል በስተጀርባ ኢሜል መላክ
+    transporter.sendMail({
+      to: user.email,
+      from: process.env.BREVO_SMTP_USER, // ከእርስዎ የ Brevo አካውንት ኢሜል ይላካል
+      subject: "Email Verification OTP - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
                <h2>Welcome to P2P Learn, ${user.name}!</h2>
                <p>Your email verification code is:</p>
@@ -71,10 +78,10 @@ router.post("/register", async (req, res) => {
                </div>
                <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This code expires in 10 minutes.</p>
              </div>`,
-    }).then(response => {
-      console.log("Resend email sent successfully:", response);
-    }).catch(err => {
-      console.error("Resend Error:", err);
+    }).then(() => {
+      console.log("Brevo OTP email sent successfully to:", user.email);
+    }).catch(mailErr => {
+      console.error("Brevo SMTP Error:", mailErr.message);
     });
 
   } catch (error) {
@@ -160,7 +167,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// 4. FORGOT PASSWORD ROUTE (በ Resend በኩል ሊንክ መላክ)
+// 4. FORGOT PASSWORD ROUTE
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
@@ -185,20 +192,20 @@ router.post("/forgot-password", async (req, res) => {
       token: token 
     });
 
-    resend.emails.send({
-      from: 'P2P Learn <onboarding@resend.dev>',
-      to: [user.email],
-      subject: 'Password Reset - P2P Learn',
+    transporter.sendMail({
+      to: user.email,
+      from: process.env.BREVO_SMTP_USER,
+      subject: "Password Reset - P2P Learn",
       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
                <h2>Password Reset Request</h2>
                <p>Hello ${user.name}, you requested to reset your password. Click the button below to proceed:</p>
                <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 10px;">Reset Password</a>
                <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This link expires in 1 hour.</p>
              </div>`,
-    }).then(response => {
-      console.log("Resend reset email sent:", response);
-    }).catch(err => {
-      console.error("Resend Reset Error:", err);
+    }).then(() => {
+      console.log("Brevo password reset email sent successfully to:", user.email);
+    }).catch(mailErr => {
+      console.error("Brevo SMTP Reset Error:", mailErr.message);
     });
 
   } catch (error) {
@@ -207,6 +214,7 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
+// 5. RESET PASSWORD ROUTE
 // 5. RESET PASSWORD ROUTE
 router.post("/reset-password/:token", async (req, res) => {
   try {
