@@ -195,7 +195,7 @@ return (
           </div>
 
           <button onClick={handleBack} className="text-xs bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-xl transition font-medium">
-            ← Back to admin page
+            ← Back to {user.role} page
           </button>
         </div>
 
