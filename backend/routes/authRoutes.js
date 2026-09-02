@@ -2,13 +2,38 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const { Resend } = require("resend"); // 👈 Resend HTTP API
 const User = require("../models/User");
 
 const router = express.Router();
 
-// 👈 Resend በ API Key ማስጀመር (Port 443 / HTTPS ይጠቀማል - Render ላይ አያግድም)
-const resend = new Resend(process.env.RESEND_API_KEY);
+// 👈 Brevo HTTP API በመጠቀም ኢሜል የሚልክ ፈጣን ፋንክሽን (Render ላይ Timeout አያመጣም)
+const sendEmailViaBrevo = async (toEmail, toName, subject, htmlContent) => {
+  try {
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "accept": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        sender: { name: "P2P Learn", email: "gizachewkassa22@gmail.com" }, // 👈 በ Brevo ላይ ቨርንify ያደረጉት ኢሜልዎ
+        to: [{ email: toEmail, name: toName }],
+        subject: subject,
+        htmlContent: htmlContent,
+      }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      console.error("Brevo API Error Response:", data);
+    } else {
+      console.log("Brevo email sent successfully:", data);
+    }
+  } catch (error) {
+    console.error("Brevo HTTP Request Error:", error.message);
+  }
+};
 
 // 1. REGISTER ROUTE
 router.post("/register", async (req, res) => {
@@ -51,30 +76,25 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // 👈 መጀመሪያ ሪስፖንስ እንመልሳለን
+    // 👈 መጀመሪያ ሪስፖንስ እንመልሳለን (Loading እንዳያደርግ)
     res.status(201).json({
       message: "Registration successful! Please check your email for the verification code.",
       email: user.email
     });
 
-    // 👈 በ Resend HTTP API በኩል ኢሜል መላክ (Render አያግደውም)
-    resend.emails.send({
-      from: 'P2P Learn <onboarding@resend.dev>',
-      to: [user.email],
-      subject: 'Email Verification OTP - P2P Learn',
-      html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
-               <h2>Welcome to P2P Learn, ${user.name}!</h2>
-               <p>Your email verification code is:</p>
-               <div style="background: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; font-size: 24px; font-weight: bold; color: #4f46e5; letter-spacing: 4px;">
-                 ${otpCode}
-               </div>
-               <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This code expires in 10 minutes.</p>
-             </div>`,
-    }).then(response => {
-      console.log("Resend email sent successfully:", response);
-    }).catch(err => {
-      console.error("Resend Error:", err);
-    });
+    // 👈 በ Brevo HTTP API በኩል ኢሜል ከኋላ በስተጀርባ መላክ
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
+        <h2>Welcome to P2P Learn, ${user.name}!</h2>
+        <p>Your email verification code is:</p>
+        <div style="background: #f3f4f6; padding: 15px; text-align: center; border-radius: 8px; font-size: 24px; font-weight: bold; color: #4f46e5; letter-spacing: 4px;">
+          ${otpCode}
+        </div>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This code expires in 10 minutes.</p>
+      </div>
+    `;
+    
+    sendEmailViaBrevo(user.email, user.name, "Email Verification OTP - P2P Learn", htmlBody);
 
   } catch (error) {
     console.error("Register Error:", error);
@@ -184,21 +204,16 @@ router.post("/forgot-password", async (req, res) => {
       token: token 
     });
 
-    resend.emails.send({
-      from: 'P2P Learn <onboarding@resend.dev>',
-      to: [user.email],
-      subject: 'Password Reset - P2P Learn',
-      html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
-               <h2>Password Reset Request</h2>
-               <p>Hello ${user.name}, you requested to reset your password. Click the button below to proceed:</p>
-               <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 10px;">Reset Password</a>
-               <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This link expires in 1 hour.</p>
-             </div>`,
-    }).then(response => {
-      console.log("Resend reset email sent:", response);
-    }).catch(err => {
-      console.error("Resend Reset Error:", err);
-    });
+    const htmlBody = `
+      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 10px;">
+        <h2>Password Reset Request</h2>
+        <p>Hello ${user.name}, you requested to reset your password. Click the button below to proceed:</p>
+        <a href="${resetUrl}" style="background: #4f46e5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-top: 10px;">Reset Password</a>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 20px;">This link expires in 1 hour.</p>
+      </div>
+    `;
+
+    sendEmailViaBrevo(user.email, user.name, "Password Reset - P2P Learn", htmlBody);
 
   } catch (error) {
     console.error("Forgot Password Error:", error);
