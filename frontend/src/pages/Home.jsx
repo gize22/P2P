@@ -90,6 +90,9 @@ export default function Home() {
             <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition shadow-xs" title="Toggle Theme">
               {darkMode ? "☀️ Light Mode" : "🌙 Night Mode"}
             </button>
+          <Link to="/#contact" className="text-slate-300    hover:text-white transition text-sm font-medium">
+               Contact Us
+          </Link>
             <Link to="/login" className="px-4 py-2 text-sm font-semibold hover:text-indigo-600 transition">Login</Link>
             <Link to="/register" className="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition shadow-lg shadow-indigo-600/30">Get Started</Link>
           </div>
