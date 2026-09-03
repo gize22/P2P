@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
     console.log(`User joined room: ${room}`);
   });
 
- // ግሩፕ ቻት መልእክት ሲላክ (የላኪውን ስም እና ኢሜይል በሰላም ይዞ እንዲሄድ ማድረግ)
+ // ግሩፕ ቻት መልእክት ሲላክ (ለሁሉም አባላት ኖቲፊኬሽን እንዲደርስ)
   socket.on("send_message", async (data) => {
     try {
       const { sender, receiver, groupId, message } = data;
@@ -82,19 +82,34 @@ io.on("connection", (socket) => {
         message 
       });
 
-      // 2. 👈 የላኪውን ስም (name) እና ኢሜይል (email) በአግባቡ ፖፑሌት ማድረግ
+      // 2. የላኪውን ስም እና ኢሜይል ፖፑሌት ማድረግ
       newMessage = await newMessage.populate("sender", "name email");
 
       if (groupId) {
+        // 3. ግሩፕ ሩም ውስጥ ላሉት መልዕክቱን መላክ
         io.to(groupId).emit("receive_message", newMessage);
 
-        // 👈 [ተጨምሯል] ተጠቃሚው ከቻት ውጭ (ሌላ ገጽ ላይ) ቢሆንም ግሩፕ ኖቲፊኬሽን እንዲደርሰው
-        // (ማስታወሻ: ግሩፕ ውስጥ ያሉ አባላትን ሩም ወይም በ socket.io broadcast በኩል ማሳወቅ ይቻላል)
-        socket.broadcast.emit("receive_notification", {
-          senderName: newMessage.sender.name,
-          message: message.includes("<div") ? "Attachment file 📎" : message,
-          type: "group_chat"
-        });
+        // 4. 👈 [አዲስ የተጨመረ] የግሩፑን አባላት ፈልጎ ከግሩፕ ውጭ ላሉትም ጭምር ኖቲፊኬሽን መላክ
+        const Group = require("./models/Group"); // የ Group ሞዴል መሆኑን ያረጋግጡ
+        const groupDoc = await Group.findById(groupId);
+
+        if (groupDoc && groupDoc.members) {
+          groupDoc.members.forEach((memberId) => {
+            const memberStrId = memberId.toString();
+            const senderStrId = sender.toString();
+
+            // ላኪው ራሱ ካልሆነ በስተቀር ለሌሎች አባላት በ personal room በኩል ኖቲፊኬሽን እንልካለን
+            if (memberStrId !== senderStrId) {
+              io.to(memberStrId).emit("receive_notification", {
+                senderId: sender,
+                senderName: newMessage.sender.name,
+                message: message.includes("<div") ? "Attachment file 📎" : message,
+                groupId: groupId,
+                type: "group_chat"
+              });
+            }
+          });
+        }
 
       } else if (receiver) {
         io.to(receiver).emit("receive_message", newMessage);
