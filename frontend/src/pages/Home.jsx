@@ -131,9 +131,7 @@ const { hash } = useLocation();
           <div className={`md:hidden border-b px-6 py-4 space-y-3 shadow-xl ${darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
             <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-indigo-600">Home</Link>
             <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">How It Works</Link>
-            <Link to="/#contact" className="text-slate-300 hover:text-white transition text-sm font-medium">
-            Contact Us
-            </Link>
+            <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">Contact Us</Link>
             <div className="pt-3 border-t border-gray-100 dark:border-slate-800 flex gap-3">
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold border rounded-lg">Login</Link>
               <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg">Register</Link>
