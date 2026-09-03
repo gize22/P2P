@@ -49,7 +49,7 @@ export default function Dashboard() {
       fetchMyRequests(parsedUser.id);
       fetchMySessions(parsedUser.id);
       fetchAnnouncements();
-      fetchRecommendations(parsedUser.id); // 👈 ትክክለኛው የ ዩሰር ID እዚህ ጋር ተጠርቷል
+      fetchRecommendations(parsedUser.id);
 
       socket.emit("join_room", parsedUser.id);
 
@@ -59,24 +59,23 @@ export default function Dashboard() {
       });
 
       socket.on("send_private_message", async (data) => {
-    try {
-      const { sender, receiver, room, message } = data;
-      let newMessage = await Message.create({ sender, receiver, message });
-      newMessage = await newMessage.populate("sender", "name"); // 👈 ስሙን ማምጣት
+        try {
+          const { sender, receiver, room, message } = data;
+          let newMessage = await Message.create({ sender, receiver, message });
+          newMessage = await newMessage.populate("sender", "name");
 
-      io.to(room).emit("receive_message", newMessage);
+          io.to(room).emit("receive_message", newMessage);
 
-      // 👈 ኖቲፊኬሽኑ ላይ የላኪውን ስም በግልጽ መላክ
-      io.to(receiver.toString()).emit("receive_notification", {
-        senderId: sender,
-        senderName: newMessage.sender.name,
-        message: message,
-        type: "private_chat"
+          io.to(receiver.toString()).emit("receive_notification", {
+            senderId: sender,
+            senderName: newMessage.sender.name,
+            message: message,
+            type: "private_chat"
+          });
+        } catch (error) {
+          console.error("Private message error:", error);
+        }
       });
-    } catch (error) {
-      console.error("Private message error:", error);
-    }
-  });
 
       socket.on("receive_announcement", (ann) => {
         setAnnouncements((prev) => [ann, ...prev]);
@@ -245,68 +244,79 @@ export default function Dashboard() {
 
   return (
     <div className={`min-h-screen w-full p-4 sm:p-8 transition-colors duration-200 ${bgMain}`}>
-      <Navbar user={user} />
-
-      {/* Announcements Banner */}
-      {announcements.length > 0 && (
-        <div className="w-full mb-6 bg-gradient-to-r from-amber-500 to-orange-600 text-white p-4 rounded-2xl shadow-md flex items-start gap-3">
-          <span className="text-2xl">📢</span>
-          <div>
-            <h3 className="font-bold text-sm uppercase tracking-wide">Platform Announcement</h3>
-            <p className="text-xs mt-1 text-amber-100">{announcements[0].message}</p>
-          </div>
-        </div>
-      )}
-
-      {/* ✨ Recommended Learning Partners (Smart Matching Section) */}
-      {recommendations.length > 0 && (
-        <div className={`w-full p-6 rounded-2xl shadow-lg mb-8 border ${bgCard}`}>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-xl">✨</span>
-            <h2 className="text-lg font-bold text-indigo-400">Recommended Learning Partners (Smart Match)</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {recommendations.map((partner) => (
-              <div key={partner._id} className={`p-4 border rounded-xl flex flex-col justify-between ${bgInnerCard}`}>
-                <div>
-                  <h3 className="text-sm font-bold">{partner.name}</h3>
-                  <p className="text-xs text-indigo-400 font-medium">{partner.university}</p>
-                  <p className="text-xs mt-2"><strong>Can Teach:</strong> <span className="text-emerald-400">{partner.skillsToTeach?.join(", ")}</span></p>
-                  <p className="text-xs text-gray-400 mt-1">Matched based on your learning goals!</p>
-                </div>
-                <div className="mt-4 flex justify-end">
-                  <button onClick={() => handleSendRequest(partner._id, partner.skillsToTeach?.[0])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition">
-                    Connect & Request
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-      {/* Find Learners Component */}
-      <FindLearners
-        learners={learners}
-        loading={loading}
-        onSearch={(skill) => fetchAllLearners(user.id, skill)}
-        onSendRequest={handleSendRequest}
-      />
-
-      {/* Requests & Sessions Component */}
-      <RequestsList
-        myRequests={myRequests}
-        mySessions={mySessions}
-        onUpdateStatus={handleUpdateStatus}
-        onOpenSessionModal={openSessionModal}
-        onCompleteSession={handleCompleteSession}
-        onOpenReviewModal={openReviewModal}
-      />
-
       
+      {/* 👈 ማዕቀፉ ሰፋ ብሎ በዴስክቶፕ ውብ ሆኖ እንዲታይ በ max-w-[1500px] ተስተካክሏል */}
+      <div className="w-full max-w-[1500px] mx-auto">
+        <Navbar user={user} />
+      </div>
+
+      <div className="w-full max-w-[1500px] mx-auto space-y-8">
+        
+        {/* Announcements Banner */}
+        {announcements.length > 0 && (
+          <div className="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-white p-5 rounded-2xl shadow-lg flex items-start gap-4">
+            <span className="text-3xl">📢</span>
+            <div>
+              <h3 className="font-bold text-sm uppercase tracking-wide">Platform Announcement</h3>
+              <p className="text-xs md:text-sm mt-1 text-amber-100">{announcements[0].message}</p>
+            </div>
+          </div>
+        )}
+
+        {/* ✨ Recommended Learning Partners (Smart Matching Section) */}
+        {recommendations.length > 0 && (
+          <div className={`w-full p-6 sm:p-8 rounded-2xl shadow-lg border ${bgCard}`}>
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-2xl">✨</span>
+              <h2 className="text-lg sm:text-xl font-bold text-indigo-400">Recommended Learning Partners (Smart Match)</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {recommendations.map((partner) => (
+                <div key={partner._id} className={`p-5 border rounded-xl flex flex-col justify-between ${bgInnerCard}`}>
+                  <div>
+                    <h3 className="text-base font-bold">{partner.name}</h3>
+                    <p className="text-xs text-indigo-400 font-medium mt-0.5">{partner.university}</p>
+                    <p className="text-xs mt-3"><strong>Can Teach:</strong> <span className="text-emerald-400 font-medium">{partner.skillsToTeach?.join(", ")}</span></p>
+                    <p className="text-xs text-gray-400 mt-1.5">Matched based on your learning goals!</p>
+                  </div>
+                  <div className="mt-5 flex justify-end">
+                    <button onClick={() => handleSendRequest(partner._id, partner.skillsToTeach?.[0])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition shadow-md">
+                      Connect & Request
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Find Learners Component */}
+        <div className="w-full">
+          <FindLearners
+            learners={learners}
+            loading={loading}
+            onSearch={(skill) => fetchAllLearners(user.id, skill)}
+            onSendRequest={handleSendRequest}
+          />
+        </div>
+
+        {/* Requests & Sessions Component */}
+        <div className="w-full">
+          <RequestsList
+            myRequests={myRequests}
+            mySessions={mySessions}
+            onUpdateStatus={handleUpdateStatus}
+            onOpenSessionModal={openSessionModal}
+            onCompleteSession={handleCompleteSession}
+            onOpenReviewModal={openReviewModal}
+          />
+        </div>
+
+      </div>
 
       {/* Session Modal */}
       {showSessionModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4 z-50">
           <form onSubmit={handleCreateSession} className={`border p-6 rounded-3xl shadow-2xl w-full max-w-md ${bgCard}`}>
             <h3 className="text-lg font-bold mb-4 text-indigo-400">Schedule Learning Session</h3>
             <label className="block text-xs font-semibold mb-1">Date</label>
@@ -337,7 +347,7 @@ export default function Dashboard() {
 
       {/* Review Modal */}
       {showReviewModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex justify-center items-center p-4 z-50">
           <form onSubmit={handleSubmitReview} className={`border p-6 rounded-3xl shadow-2xl w-full max-w-md ${bgCard}`}>
             <h3 className="text-lg font-bold mb-2 text-amber-500">⭐ Rate & Review Session</h3>
             <p className="text-xs text-gray-400 mb-4">Share your experience with your learning partner.</p>

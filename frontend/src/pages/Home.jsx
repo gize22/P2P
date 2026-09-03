@@ -82,7 +82,7 @@ const { hash } = useLocation();
       <nav className={`w-full border-b backdrop-blur-md sticky top-0 z-50 transition-colors duration-200 ${
         darkMode ? "bg-slate-950/90 border-slate-800/60" : "bg-white/90 border-gray-200"
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
+        <div className="w-full max-w-[1500px] mx-auto px-6 lg:px-12 h-20 flex justify-between items-center">
           
           {/* Logo */}
           <div className="flex items-center gap-3">
@@ -141,7 +141,7 @@ const { hash } = useLocation();
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative">
+      <section className="w-full max-w-[1500px] mx-auto px-6 lg:px-12 py-12 md:py-24 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative">
         <div className="relative z-10 text-center lg:text-left">
           <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full border text-xs font-semibold mb-6 ${
             darkMode ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-400" : "bg-indigo-50 border-indigo-200 text-indigo-600"
@@ -198,8 +198,8 @@ const { hash } = useLocation();
       </section>
 
       {/* Get in Touch / Contact Section */}
-<section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-slate-50   border-gray-200"}`}>
-  <div className="max-w-6xl mx-auto px-6">
+<section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-slate-50 border-gray-200"}`}>
+  <div className="w-full max-w-4xl mx-auto px-6">
     
     <div className="text-center max-w-2xl mx-auto mb-16">
       <span className="px-3.5 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold uppercase tracking-wider border border-indigo-500/20">
@@ -208,7 +208,7 @@ const { hash } = useLocation();
       <h2 className="text-3xl md:text-4xl font-extrabold mt-4 mb-3 tracking-tight">Have Questions or Feedback?</h2>
       <p className="text-gray-400 text-sm">We'd love to hear from you. Send us a message and our team will get back to you shortly.</p>
     </div>
-      <div className={`lg:col-span-7 p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}>
+      <div className={`w-full p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}>
         
         {/* Success / Error Banners */}
         {successMsg && <div className="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3 rounded-xl font-semibold text-center">{successMsg}</div>}
