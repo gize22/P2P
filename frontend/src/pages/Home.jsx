@@ -186,31 +186,83 @@ export default function Home() {
       </section>
 
       {/* Get in Touch / Contact Section */}
-      <section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-white border-gray-200"}`}>
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold uppercase tracking-wider border border-indigo-500/20">Get in Touch</span>
-          <h2 className="text-3xl font-extrabold mt-4 mb-3 tracking-tight">Have Questions or Feedback?</h2>
-          <p className="text-gray-400 text-sm mb-10 max-w-lg mx-auto">We'd love to hear from you. Send us a message and our team will get back to you shortly.</p>
+<section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-slate-50 border-gray-200"}`}>
+  <div className="max-w-6xl mx-auto px-6">
+    
+    <div className="text-center max-w-2xl mx-auto mb-16">
+      <span className="px-3.5 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-semibold uppercase tracking-wider border border-indigo-500/20">
+        Get in Touch
+      </span>
+      <h2 className="text-3xl md:text-4xl font-extrabold mt-4 mb-3 tracking-tight">Have Questions or Feedback?</h2>
+      <p className="text-gray-400 text-sm">We'd love to hear from you. Send us a message and our team will get back to you shortly.</p>
+    </div>
 
-          {/* Success / Error Banners */}
-          {successMsg && <div className="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3 rounded-xl max-w-xl mx-auto font-semibold">{successMsg}</div>}
-          {errorMsg && <div className="mb-6 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl max-w-xl mx-auto font-semibold">{errorMsg}</div>}
+    {/* 2-Column Grid Layout (Left: Info, Right: Form) */}
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+      
+      {/* Left Box: Contact Information */}
+      <div className={`lg:col-span-5 p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}>
+        <h3 className="text-xl font-bold mb-4">Contact Information</h3>
+        <p className="text-xs text-gray-400 mb-8 leading-relaxed">
+          Feel free to reach out to us through any of the channels below, or fill out the form and we'll get back to you as soon as possible.
+        </p>
 
-          <form onSubmit={handleContactSubmit} className="space-y-4 text-left max-w-xl mx-auto">
+        <div className="space-y-6 text-sm">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
+              📍
+            </div>
             <div>
-              <label className="block text-xs font-semibold mb-1">Your Name</label>
+              <p className="text-xs text-gray-400 font-medium">Our Address</p>
+              <p className="font-semibold mt-0.5">Tulu Awuliya, Ethiopia</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
+              📧
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 font-medium">Email Us</p>
+              <p className="font-semibold mt-0.5">gizachewkassa22@gmail.com</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
+              📞
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 font-medium">Call Us</p>
+              <p className="font-semibold mt-0.5">+251 957837318</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Box: Form */}
+      <div className={`lg:col-span-7 p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}>
+        
+        {/* Success / Error Banners */}
+        {successMsg && <div className="mb-6 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs p-3 rounded-xl font-semibold text-center">{successMsg}</div>}
+        {errorMsg && <div className="mb-6 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl font-semibold text-center">{errorMsg}</div>}
+
+        <form onSubmit={handleContactSubmit} className="space-y-5 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold mb-1.5 text-gray-300">Your Name</label>
               <input 
                 type="text" 
                 name="name" 
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="gizachew Kassa" 
+                placeholder="Gizachew Kassa" 
                 required 
-                className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
+                className={`w-full p-3.5 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold mb-1">Email Address</label>
+              <label className="block text-xs font-semibold mb-1.5 text-gray-300">Email Address</label>
               <input 
                 type="email" 
                 name="email" 
@@ -218,27 +270,34 @@ export default function Home() {
                 onChange={handleChange}
                 placeholder="gizachew@gmail.com" 
                 required 
-                className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
+                className={`w-full p-3.5 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
               />
             </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1">Message</label>
-              <textarea 
-                name="message" 
-                value={formData.message}
-                onChange={handleChange}
-                placeholder="Type your message here..." 
-                required 
-                rows="4" 
-                className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
-              />
-            </div>
-            <button type="submit" disabled={loading} className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg text-sm disabled:opacity-50">
-              {loading ? "Sending Message..." : "Send Message"}
-            </button>
-          </form>
-        </div>
-      </section>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold mb-1.5 text-gray-300">Message</label>
+            <textarea 
+              name="message" 
+              value={formData.message}
+              onChange={handleChange}
+              placeholder="Type your message here..." 
+              required 
+              rows="4" 
+              className={`w-full p-3.5 border rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition resize-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30 text-sm disabled:opacity-50">
+            {loading ? "Sending Message..." : "Send Message"}
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
       {/* Footer */}
       <Footer />
