@@ -96,10 +96,7 @@ const { hash } = useLocation();
           <div className="hidden md:flex items-center gap-8 text-md font-medium">
             <Link to="/" className="text-indigo-600 dark:text-indigo-400 font-bold">Home</Link>
             <Link to="/how-it-works" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">How It Works</Link>
-            {/* Contact Us Link (ከ How It Works ቀጥሎ እንዲሆን እና Home ላይም ሆነ ሌላ ገጽ ላይ ሆነን ስንጫነው ወደ Home#contact እንዲወስድ) */}
-              <Link to="/#contact" className="text-slate-300 hover:text-white transition text-sm font-medium">
-                Contact Us
-                </Link>
+            <Link to="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Contact Us</Link>
           </div>
 
           {/* Right Actions */}
