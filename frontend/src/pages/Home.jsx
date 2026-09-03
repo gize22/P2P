@@ -213,46 +213,6 @@ const { hash } = useLocation();
 
     {/* 2-Column Grid Layout (Left: Info, Right: Form) */}
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-      
-      {/* Left Box: Contact Information */}
-      <div className={`lg:col-span-5 p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}>
-        <h3 className="text-xl font-bold mb-4">Contact Information</h3>
-        <p className="text-xs text-gray-400 mb-8 leading-relaxed">
-          Feel free to reach out to us through any of the channels below, or fill out the form and we'll get back to you as soon as possible.
-        </p>
-
-        <div className="space-y-6 text-sm">
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
-              📍
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 font-medium">Our Address</p>
-              <p className="font-semibold mt-0.5">Tulu Awuliya, Ethiopia</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
-              📧
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 font-medium">Email Us</p>
-              <p className="font-semibold mt-0.5">gizachewkassa22@gmail.com</p>
-            </div>
-          </div>
-
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-indigo-500/10 text-indigo-400 rounded-2xl border border-indigo-500/20">
-              📞
-            </div>
-            <div>
-              <p className="text-xs text-gray-400 font-medium">Call Us</p>
-              <p className="font-semibold mt-0.5">+251 957837318</p>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Right Box: Form */}
       <div className={`lg:col-span-7 p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}>
