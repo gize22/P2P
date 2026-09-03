@@ -364,6 +364,10 @@ export default function Dashboard() {
             <label className="block text-xs font-semibold mb-1">Comment</label>
             <textarea placeholder="Write your feedback..." value={comment} onChange={(e) => setComment(e.target.value)} required rows="3" className={`w-full mb-4 p-3 border rounded-xl text-sm ${inputStyle}`} />
 
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={() => setShowReviewModal(false)} className="bg-gray-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Cancel</button>
+              <button type="submit" className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Submit your Review</button>
+            </div>
           </form>
         </div>
       )}
