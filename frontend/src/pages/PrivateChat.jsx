@@ -187,14 +187,19 @@ export default function PrivateChat() {
   if (!user || !receiver) return null;
 
 return (
-    <div className={`min-h-screen w-full flex flex-col p-2 sm:p-6 transition-colors duration-200 ${isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`min-h-screen w-full flex flex-col transition-colors duration-200 ${isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900"}`}>
       
-      {/* 👈 ዩሰሩ አድሚን ካልሆነ Navbar ይታየዋል */}
-      {user.role !== "admin" && <Navbar user={user} />}
+      {/* 1. Navbar ከላይ በሰላም እንዲታይ (አይጠፋም) */}
+      <div className="w-full px-4 sm:px-6 pt-4 shrink-0">
+        {user.role !== "admin" && <Navbar user={user} />}
+      </div>
 
-      {/* 👈 ሪል-ታይም ኖቲፊኬሽን ፖፕ-አፕ (New message from Name: message) */}
+      {/* ሪል-ታይም ኖቲፊኬሽን ፖፕ-አፕ */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce">
+        <div onClick={() => {
+          if (receiverId) navigate(`/private-chat/${receiverId}`);
+          setNotification(null);
+        }} className="fixed top-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 cursor-pointer hover:bg-slate-800 transition">
           <div className="bg-indigo-600 text-white p-2.5 rounded-xl font-bold text-sm">💬</div>
           <div>
             <h4 className="text-xs font-bold text-indigo-400">New message from {notification.name}:</h4>
@@ -203,77 +208,79 @@ return (
         </div>
       )}
 
-      {/* Telegram Style Chat Box Container */}
-      <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col bg-[#e2f0d9] dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden my-4 border border-gray-300 dark:border-slate-800">
-        
-        {/* Telegram Header */}
-        <div className="bg-[#2b5278] text-white p-3.5 sm:p-4 flex items-center justify-between shadow-md">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#4a76a8] text-white flex items-center justify-center font-bold text-lg">
-              {receiver.name.charAt(0).toUpperCase()}
+      {/* 2. Telegram Style Chat Box Container (በቁመት ተወስኖ ከ Navbar በታች እንዲሰራ) */}
+      <div className="flex-1 max-w-3xl mx-auto w-full px-4 pb-6 flex flex-col">
+        <div className="flex-1 flex flex-col bg-[#e2f0d9] dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden border border-gray-300 dark:border-slate-800 my-2">
+          
+          {/* Telegram Header */}
+          <div className="bg-[#2b5278] text-white p-3.5 sm:p-4 flex items-center justify-between shadow-md shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#4a76a8] text-white flex items-center justify-center font-bold text-lg">
+                {receiver.name.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <h2 className="text-base font-semibold leading-tight">{receiver.name}</h2>
+                <p className="text-[11px] text-gray-200">online</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-base font-semibold leading-tight">{receiver.name}</h2>
-              <p className="text-[11px] text-gray-200">online</p>
-            </div>
+
+            <button onClick={handleBack} className="text-xs bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-xl transition font-medium">
+              ← Back to {user.role} page
+            </button>
           </div>
 
-          <button onClick={handleBack} className="text-xs bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-xl transition font-medium">
-            ← Back to {user.role} page
-          </button>
-        </div>
+          {/* Messages History (Scrollable inside the box) */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-2 min-h-[350px] max-h-[55vh] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5]">
+            {messages.map((msg, index) => {
+              const isMe = msg.sender === user.id || msg.sender?._id === user.id;
+              const timeString = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        {/* Messages History */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-2 h-[450px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5]">
-          {messages.map((msg, index) => {
-            const isMe = msg.sender === user.id || msg.sender?._id === user.id;
-            const timeString = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            return (
-              <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                <div className={`relative px-3 py-2 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
-                  isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
-                }`}>
-                  {msg.message.includes("<div") ? (
-                    <div dangerouslySetInnerHTML={{ __html: msg.message }} />
-                  ) : (
-                    <p className="pr-12 pb-1 break-words">{msg.message}</p>
-                  )}
-                  
-                  <div className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-gray-500 select-none">
-                    <span>{timeString}</span>
-                    {isMe && (
-                      <span className={`font-bold tracking-tighter ${msg.read ? "text-blue-500" : "text-gray-400"}`}>
-                        ✓✓
-                      </span>
+              return (
+                <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                  <div className={`relative px-3 py-2 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
+                    isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
+                  }`}>
+                    {msg.message.includes("<div") ? (
+                      <div dangerouslySetInnerHTML={{ __html: msg.message }} />
+                    ) : (
+                      <p className="pr-12 pb-1 break-words">{msg.message}</p>
                     )}
+                    
+                    <div className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-gray-500 select-none">
+                      <span>{timeString}</span>
+                      {isMe && (
+                        <span className={`font-bold tracking-tighter ${msg.read ? "text-blue-500" : "text-gray-400"}`}>
+                          ✓✓
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-          <div ref={messagesEndRef} />
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message Input Form */}
+          <form onSubmit={sendMessage} className="p-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2 shrink-0">
+            <input type="file" onChange={handleFileUpload} className="hidden" id="privateFileInput" />
+            <label htmlFor="privateFileInput" className="cursor-pointer p-2 text-gray-500 dark:text-gray-400 hover:text-[#2b5278] text-lg" title="Attach File">
+              📎
+            </label>
+
+            <input
+              type="text"
+              placeholder="Type a private message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
+            />
+            <button type="submit" className="bg-[#2b5278] text-white px-5 py-2.5 rounded-full hover:bg-[#1e3a5f] transition shadow font-medium text-xs">
+              Send
+            </button>
+          </form>
+
         </div>
-
-        {/* Message Input Form */}
-        <form onSubmit={sendMessage} className="p-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2">
-          <input type="file" onChange={handleFileUpload} className="hidden" id="privateFileInput" />
-          <label htmlFor="privateFileInput" className="cursor-pointer p-2 text-gray-500 dark:text-gray-400 hover:text-[#2b5278] text-lg" title="Attach File">
-            📎
-          </label>
-
-          <input
-            type="text"
-            placeholder="Type a private message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
-          />
-          <button type="submit" className="bg-[#2b5278] text-white px-5 py-2.5 rounded-full hover:bg-[#1e3a5f] transition shadow font-medium text-xs">
-            Send
-          </button>
-        </form>
-
       </div>
     </div>
   );
