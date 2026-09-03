@@ -16,11 +16,14 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import HowItWorks from "./pages/HowItWorks";
 import Contact from "./pages/Contact";
+import GlobalNotification from "./components/GlobalNotification";
+
 
 
 export default function App() {
   return (
     <BrowserRouter>
+    <GlobalNotification /> {/* 👈 ቋሚ ኖቲፊኬሽን ሃንድለር */}
       <Routes>
          <Route path="/" element={<Home />} /> 
         <Route path="/login" element={<Login />} />

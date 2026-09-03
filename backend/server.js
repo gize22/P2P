@@ -87,6 +87,15 @@ io.on("connection", (socket) => {
 
       if (groupId) {
         io.to(groupId).emit("receive_message", newMessage);
+
+        // 👈 [ተጨምሯል] ተጠቃሚው ከቻት ውጭ (ሌላ ገጽ ላይ) ቢሆንም ግሩፕ ኖቲፊኬሽን እንዲደርሰው
+        // (ማስታወሻ: ግሩፕ ውስጥ ያሉ አባላትን ሩም ወይም በ socket.io broadcast በኩል ማሳወቅ ይቻላል)
+        socket.broadcast.emit("receive_notification", {
+          senderName: newMessage.sender.name,
+          message: message.includes("<div") ? "Attachment file 📎" : message,
+          type: "group_chat"
+        });
+
       } else if (receiver) {
         io.to(receiver).emit("receive_message", newMessage);
       }
@@ -96,7 +105,7 @@ io.on("connection", (socket) => {
   });
 
   // 1-to-1 (Private) ቻት መልእክት ሲላክ
-socket.on("send_private_message", async (data) => {
+  socket.on("send_private_message", async (data) => {
     try {
       const { sender, receiver, room, message } = data;
       let newMessage = await Message.create({ sender, receiver, message });
@@ -108,7 +117,7 @@ socket.on("send_private_message", async (data) => {
       io.to(receiver.toString()).emit("receive_notification", {
         senderId: sender,
         senderName: newMessage.sender.name,
-        message: message,
+        message: message.includes("<div") ? "Attachment file 📎" : message,
         type: "private_chat"
       });
     } catch (error) {
@@ -119,14 +128,11 @@ socket.on("send_private_message", async (data) => {
   // መልእክቶች መታየታቸውን (Seen/Read) ወደ true መቀየር
   socket.on("mark_messages_read", async ({ sender, receiver }) => {
     try {
-      // sender = መልእክቱን የላከው (ለምሳሌ a)
-      // receiver = ያነበበው/ከፍቶ ያየው (ለምሳሌ b)
       await Message.updateMany(
         { sender: sender, receiver: receiver, read: false },
         { $set: { read: true } }
       );
       
-      // መልእክቱን ላኪው (sender - a) የቲክ ምልክቱ ሰማያዊ እንዲሆንለት ማሳወቅ
       io.to(sender.toString()).emit("messages_read", { reader: receiver });
     } catch (error) {
       console.error("Mark read error:", error);
