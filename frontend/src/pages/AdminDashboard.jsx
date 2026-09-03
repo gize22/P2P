@@ -394,6 +394,7 @@ export default function AdminDashboard() {
                           <button onClick={() => triggerWarningModal(msg.sender._id)} className="bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-lg text-xs">Send Warning</button>
                         )}
                         <button onClick={() => handleDeleteMessage(msg._id)} className="bg-rose-500/10 text-rose-400 px-3 py-1.5 rounded-lg text-xs">Delete</button>
+                        
                       </div>
                     </div>
                   );

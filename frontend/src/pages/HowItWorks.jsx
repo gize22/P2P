@@ -40,6 +40,7 @@ export default function HowItWorks() {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link to="/" className="hover:text-indigo-500 transition">Home</Link>
             <Link to="/how-it-works" className="text-indigo-500 font-semibold">How It Works</Link>
+            <Link to="/contact" className="hover:text-indigo-500 transition">Contact Us </Link>
           </div>
           <div className="flex items-center gap-4">
             <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-gray-200 dark:bg-slate-800 text-sm shadow-xs" title="Toggle Theme">
