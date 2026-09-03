@@ -198,7 +198,7 @@ const { hash } = useLocation();
       </section>
 
       {/* Get in Touch / Contact Section */}
-<section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-slate-50 border-gray-200"}`}>
+<section id="contact" className={`py-20 border-t ${darkMode ? "bg-slate-900/50 border-slate-800" : "bg-slate-50   border-gray-200"}`}>
   <div className="max-w-6xl mx-auto px-6">
     
     <div className="text-center max-w-2xl mx-auto mb-16">
@@ -208,11 +208,6 @@ const { hash } = useLocation();
       <h2 className="text-3xl md:text-4xl font-extrabold mt-4 mb-3 tracking-tight">Have Questions or Feedback?</h2>
       <p className="text-gray-400 text-sm">We'd love to hear from you. Send us a message and our team will get back to you shortly.</p>
     </div>
-
-    {/* 2-Column Grid Layout (Left: Info, Right: Form) */}
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-
-      {/* Right Box: Form */}
       <div className={`lg:col-span-7 p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800 text-slate-100" : "bg-white border-gray-200 text-gray-800"}`}>
         
         {/* Success / Error Banners */}
@@ -267,9 +262,7 @@ const { hash } = useLocation();
       </div>
 
     </div>
-
-  </div>
-</section>
+ </section>
 
       {/* Footer */}
       <Footer />
