@@ -15,6 +15,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import HowItWorks from "./pages/HowItWorks";
+import Contact from "./pages/Contact";
 
 
 export default function App() {
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/contact" element={<Contact />} />
           {/* 👈 path="*" ሁልጊዜ ከመጨረሻው ላይ መሆን አለበት */}
         <Route path="*" element={<Navigate to="/" />} />
 
