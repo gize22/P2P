@@ -1,9 +1,22 @@
 import React, { useEffect, useState } from "react";
 import API from "../api";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Footer from "../components/Footer";
 
 export default function Home() {
+const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash === "#contact") {
+      const element = document.getElementById("contact");
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [hash]);
+
+
   const [darkMode, setDarkMode] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", message: "" });
@@ -83,6 +96,10 @@ export default function Home() {
           <div className="hidden md:flex items-center gap-8 text-md font-medium">
             <Link to="/" className="text-indigo-600 dark:text-indigo-400 font-bold">Home</Link>
             <Link to="/how-it-works" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">How It Works</Link>
+            {/* Contact Us Link (ከ How It Works ቀጥሎ እንዲሆን እና Home ላይም ሆነ ሌላ ገጽ ላይ ሆነን ስንጫነው ወደ Home#contact እንዲወስድ) */}
+              <Link to="/#contact" className="text-slate-300 hover:text-white transition text-sm font-medium">
+                Contact Us
+                </Link>
           </div>
 
           {/* Right Actions */}
@@ -90,9 +107,6 @@ export default function Home() {
             <button onClick={toggleTheme} className="p-2.5 rounded-xl bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-slate-700 transition shadow-xs" title="Toggle Theme">
               {darkMode ? "☀️ Light Mode" : "🌙 Night Mode"}
             </button>
-          <Link to="/#contact" className="text-slate-300    hover:text-white transition text-sm font-medium">
-               Contact Us
-          </Link>
             <Link to="/login" className="px-4 py-2 text-sm font-semibold hover:text-indigo-600 transition">Login</Link>
             <Link to="/register" className="px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl transition shadow-lg shadow-indigo-600/30">Get Started</Link>
           </div>
@@ -120,6 +134,9 @@ export default function Home() {
           <div className={`md:hidden border-b px-6 py-4 space-y-3 shadow-xl ${darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
             <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-indigo-600">Home</Link>
             <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">How It Works</Link>
+            <Link to="/#contact" className="text-slate-300 hover:text-white transition text-sm font-medium">
+            Contact Us
+            </Link>
             <div className="pt-3 border-t border-gray-100 dark:border-slate-800 flex gap-3">
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold border rounded-lg">Login</Link>
               <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg">Register</Link>
