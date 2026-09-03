@@ -78,7 +78,7 @@ export default function ChatRoom() {
     socket.emit("join_room", groupId);
     socket.emit("join_room", parsedUser.id); // 👈 ለ ኖቲፊኬሽን እንዲመች ዩዘሩን በራሱ ID ጆይን ማድረግ
 
-    // አዲስ መልእክት ሲመጣ በሪል-ታይም ወደ ስቴት መጨመር
+    // 👈 [የተስተካከለ] አዲስ መልእክት ሲመጣ በሪል-ታይም ወደ ስቴት መጨመር እና ኖቲፊኬሽን ማሳየት
     const handleReceiveMessage = (data) => {
       setMessages((prev) => {
         const exists = prev.some((msg) => msg._id === data._id);
@@ -171,7 +171,10 @@ export default function ChatRoom() {
 
       {/* 👈 ሪል-ታይም ኖቲፊኬሽን ፖፕ-አፕ (New message from Name: message) */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce">
+        <div onClick={() => {
+          navigate(`/chat/${groupId}`);
+          setNotification(null);
+        }} className="fixed top-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 cursor-pointer hover:bg-slate-800 transition">
           <div className="bg-indigo-600 text-white p-2.5 rounded-xl font-bold text-sm">💬</div>
           <div>
             <h4 className="text-xs font-bold text-indigo-400">New message from {notification.name}:</h4>
