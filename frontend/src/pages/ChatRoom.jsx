@@ -166,13 +166,17 @@ export default function ChatRoom() {
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
 
   return (
-    <div className={`min-h-screen w-full flex flex-col p-4 sm:p-6 transition-colors duration-200 ${bgMain}`}>
-      <Navbar user={user} />
+    <div className={`min-h-screen w-full flex flex-col transition-colors duration-200 ${bgMain}`}>
+      
+      {/* 1. Navbar ከላይ በሰላም እንዲታይ (አይጠፋም) */}
+      <div className="w-full px-4 sm:px-6 pt-4 shrink-0">
+        <Navbar user={user} />
+      </div>
 
-      {/* 👈 ሪል-ታይም ኖቲፊኬሽን ፖፕ-አፕ (New message from Name: message) */}
+      {/* ሪል-ታይም ኖቲፊኬሽን ፖፕ-አፕ */}
       {notification && (
         <div onClick={() => {
-          navigate(`/chat/${groupId}`);
+          if (groupId) navigate(`/chat/${groupId}`);
           setNotification(null);
         }} className="fixed top-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 cursor-pointer hover:bg-slate-800 transition">
           <div className="bg-indigo-600 text-white p-2.5 rounded-xl font-bold text-sm">💬</div>
@@ -183,56 +187,60 @@ export default function ChatRoom() {
         </div>
       )}
 
-      <div className={`max-w-4xl mx-auto w-full flex-1 flex flex-col shadow-2xl rounded-2xl overflow-hidden border ${bgCard}`}>
-        
-        {/* Chat Header */}
-        <div className="bg-[#2b5278] text-white p-4 shadow-md">
-          <h2 className="text-lg font-bold">{groupInfo ? groupInfo.name : "Study Group Chat"}</h2>
-          <p className="text-xs text-indigo-200">Topic: {groupInfo?.skill}</p>
-        </div>
+      {/* 2. Group Chat Box Container (በቁመት ተወስኖ ከ Navbar በታች እንዲሰራ) */}
+      <div className="flex-1 max-w-4xl mx-auto w-full px-4 pb-6 flex flex-col">
+        <div className={`flex-1 flex flex-col shadow-2xl rounded-2xl overflow-hidden border ${bgCard} my-2`}>
+          
+          {/* Chat Header */}
+          <div className="bg-[#2b5278] text-white p-3.5 sm:p-4 shadow-md shrink-0">
+            <h2 className="text-base sm:text-lg font-bold">{groupInfo ? groupInfo.name : "Study Group Chat"}</h2>
+            <p className="text-xs text-indigo-200">Topic: {groupInfo?.skill}</p>
+          </div>
 
-        {/* Messages Box */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-3 h-[450px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5] dark:bg-slate-950">
-          {messages.map((msg, index) => {
-            const isMe = msg.sender === user.id || msg.sender?._id === user.id;
-            const senderName = msg.sender?.name || (isMe ? "You" : "Member");
+          {/* Messages Box (Scrollable inside the box) */}
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 min-h-[350px] max-h-[55vh] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5] dark:bg-slate-950">
+            {messages.map((msg, index) => {
+              const isMe = msg.sender === user.id || msg.sender?._id === user.id;
+              const senderName = msg.sender?.name || (isMe ? "You" : "Member");
 
-            return (
-              <div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                <span className="text-[10px] text-gray-400 mb-0.5 px-1 font-semibold">{senderName}</span>
-                <div className={`p-3 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
-                  isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
-                }`}>
-                  {msg.message.includes("<a href=") ? (
-                    <div dangerouslySetInnerHTML={{ __html: msg.message }} />
-                  ) : (
-                    <p className="break-words">{msg.message}</p>
-                  )}
+              return (
+                <div key={index} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
+                  <span className="text-[10px] text-gray-400 mb-0.5 px-1 font-semibold">{senderName}</span>
+                  <div className={`p-3 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
+                    isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
+                  }`}>
+                    {msg.message.includes("<a href=") ? (
+                      <div dangerouslySetInnerHTML={{ __html: msg.message }} />
+                    ) : (
+                      <p className="break-words">{msg.message}</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-          <div ref={messagesEndRef} />
+              );
+            })}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message Input Form */}
+          <form onSubmit={sendMessage} className={`p-3 border-t flex items-center gap-2 shrink-0 ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
+            <input type="file" onChange={handleFileUpload} className="hidden" id="groupFileInput" />
+            <label htmlFor="groupFileInput" className="cursor-pointer p-2 text-gray-400 hover:text-indigo-500 text-lg" title="Attach File">
+              📎
+            </label>
+
+            <input
+              type="text"
+              placeholder="Type a message..."
+              value={newMessage}
+              onChange={(e) => setNewMessage(e.target.value)}
+              className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
+            />
+            <button type="submit" className="bg-[#2b5278] hover:bg-[#1e3a5f] text-white px-5 py-2.5 rounded-full text-sm font-medium shadow">
+              Send
+            </button>
+          </form>
+
         </div>
-
-        {/* Message Input Form */}
-        <form onSubmit={sendMessage} className={`p-3 border-t flex items-center gap-2 ${isDark ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
-          <input type="file" onChange={handleFileUpload} className="hidden" id="groupFileInput" />
-          <label htmlFor="groupFileInput" className="cursor-pointer p-2 text-gray-400 hover:text-indigo-500 text-lg" title="Attach File">
-            📎
-          </label>
-
-          <input
-            type="text"
-            placeholder="Type a message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
-          />
-          <button type="submit" className="bg-[#2b5278] hover:bg-[#1e3a5f] text-white px-5 py-2.5 rounded-full text-sm font-medium shadow">
-            Send
-          </button>
-        </form>
       </div>
     </div>
   );
