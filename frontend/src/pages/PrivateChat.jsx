@@ -41,6 +41,9 @@ export default function PrivateChat() {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
+   const scrollContainerRef = useRef(null);
+  const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
+
 
   // 👈 አዲስ የመጣ ኖቲፊኬሽን ለመያዝ (Real-time Notification State)
   const [notification, setNotification] = useState(null);
@@ -52,6 +55,23 @@ export default function PrivateChat() {
   };
 
   useEffect(() => {
+     // ዩዘሩ ወደላይ ስክሮል አድርጎ እንደሆነ መከታተያ
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    // ከታችኛው ዳርቻ ከ 100 ፒክስል በላይ ከፍ ብሎ ከሆነ
+    const isUp = scrollHeight - scrollTop - clientHeight > 100;
+    setIsUserScrolledUp(isUp);
+  };
+
+  // አዲስ መልዕክት ሲመጣ ወይም ስንገባ አውቶማቲክ ወደታች ማውረድ (Smart Auto-scroll)
+  useEffect(() => {
+    if (!isUserScrolledUp) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isUserScrolledUp]);
+
+
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       navigate("/login");
@@ -229,37 +249,41 @@ return (
             </button>
           </div>
 
-          {/* Messages History (Scrollable inside the box) */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-2 min-h-[350px] max-h-[55vh] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5]">
-            {messages.map((msg, index) => {
-              const isMe = msg.sender === user.id || msg.sender?._id === user.id;
-              const timeString = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+         {/* Messages History */}
+        <div 
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex-1 p-4 overflow-y-auto space-y-2 min-h-[350px] max-h-[55vh] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5]"
+        >
+          {messages.map((msg, index) => {
+            const isMe = msg.sender === user.id || msg.sender?._id === user.id;
+            const timeString = new Date(msg.createdAt || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-              return (
-                <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
-                  <div className={`relative px-3 py-2 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
-                    isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
-                  }`}>
-                    {msg.message.includes("<div") ? (
-                      <div dangerouslySetInnerHTML={{ __html: msg.message }} />
-                    ) : (
-                      <p className="pr-12 pb-1 break-words">{msg.message}</p>
+            return (
+              <div key={index} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
+                <div className={`relative px-3 py-2 rounded-xl max-w-xs md:max-w-md text-sm shadow-sm ${
+                  isMe ? "bg-[#eeffde] text-black rounded-br-none" : "bg-white text-black rounded-tl-none border border-gray-200"
+                }`}>
+                  {msg.message.includes("<div") ? (
+                    <div dangerouslySetInnerHTML={{ __html: msg.message }} />
+                  ) : (
+                    <p className="pr-12 pb-1 break-words">{msg.message}</p>
+                  )}
+                  
+                  <div className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-gray-500 select-none">
+                    <span>{timeString}</span>
+                    {isMe && (
+                      <span className={`font-bold tracking-tighter ${msg.read ? "text-blue-500" : "text-gray-400"}`}>
+                        ✓✓
+                      </span>
                     )}
-                    
-                    <div className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-gray-500 select-none">
-                      <span>{timeString}</span>
-                      {isMe && (
-                        <span className={`font-bold tracking-tighter ${msg.read ? "text-blue-500" : "text-gray-400"}`}>
-                          ✓✓
-                        </span>
-                      )}
-                    </div>
                   </div>
                 </div>
-              );
-            })}
-            <div ref={messagesEndRef} />
-          </div>
+              </div>
+            );
+          })}
+          <div ref={messagesEndRef} />
+        </div>
 
           {/* Message Input Form */}
           <form onSubmit={sendMessage} className="p-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2 shrink-0">
