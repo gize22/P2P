@@ -42,6 +42,9 @@ export default function PrivateChat() {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
+  // 👈 አዲስ የመጣ ኖቲፊኬሽን ለመያዝ (Real-time Notification State)
+  const [notification, setNotification] = useState(null);
+
   const isDark = localStorage.getItem("theme") === "dark";
 
   const getRoomId = (id1, id2) => {
@@ -85,6 +88,16 @@ export default function PrivateChat() {
         });
         socket.emit("mark_messages_read", { sender: receiverId, receiver: parsedUser.id });
       }
+
+      // 👈 ዩሰሩ የላከው ካልሆነ በስተቀር ኖቲፊኬሽን ማሳየት
+      const senderId = data.sender?._id || data.sender;
+      if (senderId !== parsedUser.id) {
+        const senderName = receiver?.name || "User";
+        const msgText = data.message?.includes("<div") ? "Attachment file 📎" : data.message;
+        
+        setNotification({ name: senderName, message: msgText });
+        setTimeout(() => setNotification(null), 4000);
+      }
     };
 
     socket.on("receive_message", handleReceiveMessage);
@@ -99,7 +112,7 @@ export default function PrivateChat() {
       socket.off("receive_message", handleReceiveMessage);
       socket.off("messages_read");
     };
-  }, [receiverId, navigate]);
+  }, [receiverId, navigate, receiver]);
 
   // አዲስ መልእክት ሲመጣ ወደታች SCROLL እንዲያደርግ
   useEffect(() => {
@@ -132,7 +145,7 @@ export default function PrivateChat() {
     setNewMessage("");
   };
 
-  // 👈 1-to-1 ቻት ላይ ፋይል ወይም ፎቶ ዩፕሎድ ማድረጊያ (View & Download ⬇️ ያለው)
+  // 👈 1-to-1 ቻት ላይ ፋይል ወይም ፎቶ ዩፕሎድ ማድረጊያ
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file || !user) return;
@@ -176,8 +189,19 @@ export default function PrivateChat() {
 return (
     <div className={`min-h-screen w-full flex flex-col p-2 sm:p-6 transition-colors duration-200 ${isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900"}`}>
       
-      {/* 👈 ዩሰሩ አድሚን ካልሆነ (ማለትም ተማሪ ከሆነ) Navbar ይታየዋል፤ አድሚን ከሆነ ግን አይታየውም */}
+      {/* 👈 ዩሰሩ አድሚን ካልሆነ Navbar ይታየዋል */}
       {user.role !== "admin" && <Navbar user={user} />}
+
+      {/* 👈 ሪል-ታይም ኖቲፊኬሽን ፖፕ-አፕ (New message from Name: message) */}
+      {notification && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce">
+          <div className="bg-indigo-600 text-white p-2.5 rounded-xl font-bold text-sm">💬</div>
+          <div>
+            <h4 className="text-xs font-bold text-indigo-400">New message from {notification.name}:</h4>
+            <p className="text-xs text-slate-300 mt-0.5 truncate max-w-xs">{notification.message}</p>
+          </div>
+        </div>
+      )}
 
       {/* Telegram Style Chat Box Container */}
       <div className="max-w-3xl mx-auto w-full flex-1 flex flex-col bg-[#e2f0d9] dark:bg-slate-900 shadow-2xl rounded-2xl overflow-hidden my-4 border border-gray-300 dark:border-slate-800">
@@ -199,7 +223,7 @@ return (
           </button>
         </div>
 
-        {/* Messages History (Telegram Wallpaper style background) */}
+        {/* Messages History */}
         <div className="flex-1 p-4 overflow-y-auto space-y-2 h-[450px] bg-[radial-gradient(#cbd5e1_1px,transparent_1px)] [background-size:16px_16px] bg-[#f0f2f5]">
           {messages.map((msg, index) => {
             const isMe = msg.sender === user.id || msg.sender?._id === user.id;
@@ -216,7 +240,6 @@ return (
                     <p className="pr-12 pb-1 break-words">{msg.message}</p>
                   )}
                   
-                  {/* Time and Seen (✓✓) Symbol */}
                   <div className="absolute bottom-1 right-2 flex items-center gap-1 text-[10px] text-gray-500 select-none">
                     <span>{timeString}</span>
                     {isMe && (
@@ -232,8 +255,7 @@ return (
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Telegram Message Input Form with File Upload (📎) */}
-        {/* Telegram Message Input Form */}
+        {/* Message Input Form */}
         <form onSubmit={sendMessage} className="p-3 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 flex items-center gap-2">
           <input type="file" onChange={handleFileUpload} className="hidden" id="privateFileInput" />
           <label htmlFor="privateFileInput" className="cursor-pointer p-2 text-gray-500 dark:text-gray-400 hover:text-[#2b5278] text-lg" title="Attach File">
@@ -245,7 +267,6 @@ return (
             placeholder="Type a private message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            // 👈 የጽሁፍ ከለሩ ጥቁር/ነጭ ሆኖ ከባክግራውንድ ጋር ፈጽሞ እንዳይመሳሰል የተደረገ ጠንካራ ስታይል
             className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
           />
           <button type="submit" className="bg-[#2b5278] text-white px-5 py-2.5 rounded-full hover:bg-[#1e3a5f] transition shadow font-medium text-xs">

@@ -40,6 +40,9 @@ export default function ChatRoom() {
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
 
+  // 👈 አዲስ የመጣ ኖቲፊኬሽን ለመያዝ (Real-time Notification State)
+  const [notification, setNotification] = useState(null);
+
   const isDark = localStorage.getItem("theme") === "dark";
 
   useEffect(() => {
@@ -73,6 +76,7 @@ export default function ChatRoom() {
 
     // ወደ ቻት ሩም መቀላቀል
     socket.emit("join_room", groupId);
+    socket.emit("join_room", parsedUser.id); // 👈 ለ ኖቲፊኬሽን እንዲመች ዩዘሩን በራሱ ID ጆይን ማድረግ
 
     // አዲስ መልእክት ሲመጣ በሪል-ታይም ወደ ስቴት መጨመር
     const handleReceiveMessage = (data) => {
@@ -81,6 +85,16 @@ export default function ChatRoom() {
         if (exists) return prev;
         return [...prev, data];
       });
+
+      // 👈 ዩዘሩ የላከው ካልሆነ በስተቀር ኖቲፊኬሽን ማሳየት
+      const senderId = data.sender?._id || data.sender;
+      if (senderId !== parsedUser.id) {
+        const senderName = data.sender?.name || "Group Member";
+        const msgText = data.message?.includes("<div") ? "Attachment file 📎" : data.message;
+        
+        setNotification({ name: senderName, message: msgText });
+        setTimeout(() => setNotification(null), 4000);
+      }
     };
 
     socket.on("receive_message", handleReceiveMessage);
@@ -110,12 +124,10 @@ export default function ChatRoom() {
   };
 
   // ምስል ወይም ፋይል ዩፕሎድ ለማድረግ
-  // 👈 ፋይሉን በቀጥታ ወደ Base64 (Data URL) የሚቀይር ንጹህ ፊንክሽን
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file || !user) return;
 
-    // ፋይሉ ከ 2MB በላይ ከሆነ ማስጠንቀቂያ መስጠት (ለ ዳታቤዝ ጥንቃቄ)
     if (file.size > 2 * 1024 * 1024) {
       alert("File size should be less than 2MB for direct upload.");
       return;
@@ -152,11 +164,21 @@ export default function ChatRoom() {
 
   const bgMain = isDark ? "bg-slate-950 text-slate-100" : "bg-gray-50 text-gray-900";
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
-  const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-gray-100 border-gray-300 text-gray-900 placeholder-gray-400";
 
   return (
     <div className={`min-h-screen w-full flex flex-col p-4 sm:p-6 transition-colors duration-200 ${bgMain}`}>
       <Navbar user={user} />
+
+      {/* 👈 ሪል-ታይም ኖቲፊኬሽን ፖፕ-አፕ (New message from Name: message) */}
+      {notification && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce">
+          <div className="bg-indigo-600 text-white p-2.5 rounded-xl font-bold text-sm">💬</div>
+          <div>
+            <h4 className="text-xs font-bold text-indigo-400">New message from {notification.name}:</h4>
+            <p className="text-xs text-slate-300 mt-0.5 truncate max-w-xs">{notification.message}</p>
+          </div>
+        </div>
+      )}
 
       <div className={`max-w-4xl mx-auto w-full flex-1 flex flex-col shadow-2xl rounded-2xl overflow-hidden border ${bgCard}`}>
         
@@ -202,7 +224,6 @@ export default function ChatRoom() {
             placeholder="Type a message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            // 👈 ጽሁፉ በሞባይልም ሆነ በፒሲ በጥርት እንዲታይ
             className="flex-1 px-4 py-2.5 bg-white dark:bg-slate-950 text-gray-900 dark:text-white border border-gray-300 dark:border-slate-800 rounded-full focus:outline-none focus:ring-2 focus:ring-[#2b5278] text-sm placeholder-gray-500 shadow-inner"
           />
           <button type="submit" className="bg-[#2b5278] hover:bg-[#1e3a5f] text-white px-5 py-2.5 rounded-full text-sm font-medium shadow">
