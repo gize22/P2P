@@ -366,7 +366,7 @@ export default function Dashboard() {
 
             <div className="flex justify-end gap-2">
               <button type="button" onClick={() => setShowReviewModal(false)} className="bg-gray-600 text-white px-4 py-2 rounded-xl text-xs font-semibold">Cancel</button>
-              <button type="submit" className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Submit your Review</button>
+              <button type="submit" className="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-xl text-xs font-semibold">Submit Review</button>
             </div>
           </form>
         </div>
