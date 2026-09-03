@@ -30,7 +30,7 @@ export default function Register() {
         skillsToLearn: formData.skillsToLearn.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
-      // 👈 ሪኩዌስት ወደ ባክኤንድ ሲላክ ባክኤንዱ ራሱ በ Gmail SMTP ፖስታውን ይልካል
+      // 👈 ሪኩዌስት ወደ ባክኤንድ ሲላክ ባክኤንዱ በ Brevo በኩል ፖስታውን ይልካል
       const res = await API.post("/auth/register", payload);
       alert(res.data.message);
       navigate("/verify-otp", { state: { email: formData.email } });
@@ -45,13 +45,14 @@ export default function Register() {
     <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 py-12 relative text-slate-100">
       
       {/* Back to Home Link */}
-      <div className="w-full max-w-lg mb-6 flex justify-start">
+      <div className="w-full max-w-md mb-6 flex justify-start">
         <Link to="/" className="text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-1.5 transition bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl shadow-md">
           ← Back to Home
         </Link>
       </div>
 
-      <div className="max-w-lg w-full bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative">
+      {/* max-w-lg ወደ max-w-md ተቀይሯል (ልክ እንደ Login ስታይል) */}
+      <div className="max-w-md w-full bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl relative">
         <div className="text-center mb-8">
           <Link to="/" className="inline-block bg-gradient-to-tr from-indigo-500 to-purple-500 text-white p-3 rounded-2xl font-bold text-lg mb-3 shadow-lg shadow-indigo-500/20">P2P</Link>
           <h2 className="text-2xl font-extrabold text-white tracking-tight">Create Account</h2>
