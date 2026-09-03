@@ -41,9 +41,9 @@ export default function PrivateChat() {
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
   const navigate = useNavigate();
-   const scrollContainerRef = useRef(null);
+  
+  const scrollContainerRef = useRef(null);
   const [isUserScrolledUp, setIsUserScrolledUp] = useState(false);
-
 
   // 👈 አዲስ የመጣ ኖቲፊኬሽን ለመያዝ (Real-time Notification State)
   const [notification, setNotification] = useState(null);
@@ -54,24 +54,22 @@ export default function PrivateChat() {
     return [id1, id2].sort().join("_");
   };
 
-  useEffect(() => {
-     // ዩዘሩ ወደላይ ስክሮል አድርጎ እንደሆነ መከታተያ
+  // 👈 1. ዩዘሩ ወደላይ ስክሮል አድርጎ እንደሆነ መከታተያ (ከ useEffect ውጭ በትክክለኛው ቦታ ተቀምጧል)
   const handleScroll = () => {
     if (!scrollContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
-    // ከታችኛው ዳርቻ ከ 100 ፒክስል በላይ ከፍ ብሎ ከሆነ
     const isUp = scrollHeight - scrollTop - clientHeight > 100;
     setIsUserScrolledUp(isUp);
   };
 
-  // አዲስ መልዕክት ሲመጣ ወይም ስንገባ አውቶማቲክ ወደታች ማውረድ (Smart Auto-scroll)
+  // 👈 2. Smart Auto-scroll 
   useEffect(() => {
     if (!isUserScrolledUp) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isUserScrolledUp]);
 
-
+  useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       navigate("/login");
@@ -133,11 +131,6 @@ export default function PrivateChat() {
       socket.off("messages_read");
     };
   }, [receiverId, navigate, receiver]);
-
-  // አዲስ መልእክት ሲመጣ ወደታች SCROLL እንዲያደርግ
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
 
 
@@ -309,5 +302,3 @@ return (
     </div>
   );
 }
-
-
