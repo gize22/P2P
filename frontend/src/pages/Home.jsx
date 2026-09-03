@@ -204,7 +204,7 @@ export default function Home() {
                 name="name" 
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="Abebe Kassa" 
+                placeholder="gizachew Kassa" 
                 required 
                 className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
               />
@@ -216,7 +216,7 @@ export default function Home() {
                 name="email" 
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="name@example.com" 
+                placeholder="gizachew@gmail.com" 
                 required 
                 className={`w-full p-3 border rounded-xl text-sm focus:outline-none ${darkMode ? "bg-slate-950 border-slate-800 text-white" : "bg-gray-50 border-gray-300 text-gray-900"}`} 
               />
