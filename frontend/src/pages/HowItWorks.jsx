@@ -40,6 +40,7 @@ export default function HowItWorks() {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
             <Link to="/" className="hover:text-indigo-500 transition">Home</Link>
             <Link to="/how-it-works" className="text-indigo-500 font-semibold">How It Works</Link>
+            <Link to="/about" className="hover:text-indigo-500 transition">About Us</Link>
             <Link to="/contact" className="hover:text-indigo-500 transition">Contact Us </Link>
           </div>
           <div className="flex items-center gap-4">

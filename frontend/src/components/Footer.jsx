@@ -24,6 +24,7 @@ export default function Footer() {
             <li><Link to="/" className="hover:text-indigo-400 transition">Home</Link></li>
             <li><Link to="/how-it-works" className="hover:text-indigo-400 transition">How It Works</Link></li>
             <li><Link to="/contact" className="hover:text-indigo-400 transition">Contact Us</Link></li>
+             <li><Link to="/about" className="hover:text-indigo-400 transition">About Us</Link></li>
             <li><Link to="/login" className="hover:text-indigo-400 transition">Sign In</Link></li>
             <li><Link to="/register" className="hover:text-indigo-400 transition">Create Account</Link></li>
           </ul>
