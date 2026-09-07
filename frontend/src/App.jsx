@@ -16,6 +16,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import HowItWorks from "./pages/HowItWorks";
 import Contact from "./pages/Contact";
+import About from "./pages/About";
 import GlobalNotification from "./components/GlobalNotification";
 
 
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About/>} />
           {/* 👈 path="*" ሁልጊዜ ከመጨረሻው ላይ መሆን አለበት */}
         <Route path="*" element={<Navigate to="/" />} />
 
