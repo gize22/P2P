@@ -1,15 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "../ThemeContext";
 import { useNavigate } from "react-router-dom";
+import API from "../api";
 
 export default function FindLearners({ learners, loading, onSearch, onSendRequest }) {
 
-    const { isDark } = useTheme();
-    const navigate = useNavigate();
+  const { isDark } = useTheme();
+  const navigate = useNavigate();
   const [searchSkill, setSearchSkill] = useState("");
+  
+  // 👈 የራቲንግ መረጃዎችን ብቻ ለመያዝ
+  const [ratingsMap, setRatingsMap] = useState({});
 
   const bgCard = isDark ? "bg-slate-900 border-slate-800 text-white" : "bg-white border-gray-200 text-gray-900";
   const inputStyle = isDark ? "bg-slate-950 border-slate-800 text-white placeholder-slate-400" : "bg-white border-gray-300 text-gray-900 placeholder-gray-400";
+
+  useEffect(() => {
+    API.get("/admin/reviews")
+      .then((res) => {
+        const map = {};
+        res.data.forEach((rev) => {
+          const targetId = rev.reviewedUser?._id || rev.reviewedUser;
+          if (!map[targetId]) {
+            map[targetId] = { total: 0, count: 0 };
+          }
+          map[targetId].total += Number(rev.rating) || 0;
+          map[targetId].count += 1;
+        });
+        setRatingsMap(map);
+      })
+      .catch((err) => console.error("Error fetching ratings map", err));
+  }, [learners]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -35,29 +56,41 @@ export default function FindLearners({ learners, loading, onSearch, onSendReques
           <p className="text-gray-400">No learners found.</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {learners.map((learner) => (
-              <div key={learner._id} className={`p-5 rounded-2xl shadow-lg border flex flex-col justify-between ${bgCard}`}>
-                <div>
-                  <h3 className="text-base font-bold">{learner.name}</h3>
-                  <p className="text-xs text-indigo-400 font-medium">{learner.university}</p>
-                  <p className="text-xs text-gray-300 mt-3"><strong>Can Teach:</strong> <span className="text-emerald-400">{learner.skillsToTeach?.join(", ") || "None"}</span></p>
-                  <p className="text-xs text-gray-300 mt-1"><strong>Wants to Learn:</strong> <span className="text-purple-400">{learner.skillsToLearn?.join(", ") || "None"}</span></p>
+            {learners.map((learner) => {
+              // 👈 የአማካይ ራቲንግ ስሌት ብቻ
+              const userRev = ratingsMap[learner._id] || { total: 0, count: 0 };
+              const avgRating = userRev.count > 0 ? (userRev.total / userRev.count).toFixed(1) : "No rating";
+
+              return (
+                <div key={learner._id} className={`p-5 rounded-2xl shadow-lg border flex flex-col justify-between ${bgCard}`}>
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <h3 className="text-base font-bold">{learner.name}</h3>
+                      {/* 👈 ራቲንግ (⭐ Stars) ብቻ ይታያል፣ ኮሜንት በግልጽ ተወግዷል */}
+                      <span className="text-xs bg-amber-500/10 text-amber-500 font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
+                        ⭐ {avgRating} {userRev.count > 0 && `(${userRev.count})`}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-indigo-400 font-medium">{learner.university}</p>
+                    <p className="text-xs text-gray-300 mt-3"><strong>Can Teach:</strong> <span className="text-emerald-400">{learner.skillsToTeach?.join(", ") || "None"}</span></p>
+                    <p className="text-xs text-gray-300 mt-1"><strong>Wants to Learn:</strong> <span className="text-purple-400">{learner.skillsToLearn?.join(", ") || "None"}</span></p>
+                  </div>
+
+                 <div className="mt-5 flex justify-end">
+                    {learner.role === 'admin' ? (
+                      <button onClick={() => navigate(`/private-chat/${learner._id}`)} className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
+                        💬 Chat with Admin
+                      </button>
+                    ) : (
+                      <button onClick={() => onSendRequest(learner._id, learner.skillsToTeach?.[0])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
+                        Send Request
+                      </button>
+                    )}
+                  </div>
                 </div>
-               <div className="mt-5 flex justify-end">
-                  {learner.role === 'admin' ? (
-                    /* 👈 አድሚን ከሆነ ሪኩዌስት ሳይጠብቅ ቀጥታ ቻት መክፈቻ */
-                    <button onClick={() => navigate(`/private-chat/${learner._id}`)} className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
-                      💬 Chat with Admin
-                    </button>
-                  ) : (
-                    /* 👈 ተራ ተማሪ ከሆነ መደበኛው ሪኩዌስት በተን */
-                    <button onClick={() => onSendRequest(learner._id, learner.skillsToTeach?.[0])} className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition">
-                      Send Request
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
