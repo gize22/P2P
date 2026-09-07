@@ -96,7 +96,10 @@ const { hash } = useLocation();
           <div className="hidden md:flex items-center gap-8 text-md font-medium">
             <Link to="/" className="text-indigo-600 dark:text-indigo-400 font-bold">Home</Link>
             <Link to="/how-it-works" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">How It Works</Link>
+            <Link to="/about" className="hover:text-indigo-500 transition">About Us</Link>
             <Link to="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Contact Us</Link>
+            
+            
           </div>
 
           {/* Right Actions */}
@@ -132,6 +135,7 @@ const { hash } = useLocation();
             <Link to="/" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium text-indigo-600">Home</Link>
             <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">How It Works</Link>
             <Link to="/contact" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">Contact Us</Link>
+            <Link to="/about" onClick={() => setMobileMenuOpen(false)} className="block text-sm font-medium">About Us</Link>
             <div className="pt-3 border-t border-gray-100 dark:border-slate-800 flex gap-3">
               <Link to="/login" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold border rounded-lg">Login</Link>
               <Link to="/register" onClick={() => setMobileMenuOpen(false)} className="flex-1 text-center py-2 text-sm font-semibold text-white bg-indigo-600 rounded-lg">Register</Link>
