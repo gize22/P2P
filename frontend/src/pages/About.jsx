@@ -66,7 +66,7 @@ export default function About() {
           <div className={`p-8 rounded-3xl border shadow-xl ${darkMode ? "bg-slate-900 border-slate-800" : "bg-white border-gray-200"}`}>
             <h3 className="text-2xl font-bold mb-3 text-indigo-400">Our Mission</h3>
             <p className="text-gray-400 text-sm leading-relaxed">
-              We believe that the best way to learn is by teaching. Our mission is to build a robust, student-driven community where academic and technical barriers are broken down through direct peer-to-peer collaboration, skill matching, and real-time study groups.
+               We aim to transform traditional isolated studying into an interactive, community-driven experience. By matching students based on their specific skillsets and academic objectives, we empower them to teach what they master and learn what they desire in real-time.
             </p>
           </div>
 
@@ -80,7 +80,7 @@ export default function About() {
               </div>
               <div>
                 <h4 className="font-bold mb-1 text-white">💬 Real-Time Collaboration</h4>
-                <p className="text-gray-400 text-xs">Instantly chat 1-on-1, share files, and build study groups seamlessly.</p>
+                <p className="text-gray-400 text-xs"> Engage in instant 1-on-1 chats, study group discussions, and file sharing securely.</p>
               </div>
               <div>
                 <h4 className="font-bold mb-1 text-white">⭐ Trusted Feedback</h4>
@@ -88,7 +88,7 @@ export default function About() {
               </div>
               <div>
                 <h4 className="font-bold mb-1 text-white">🔒 Secure & Reliable</h4>
-                <p className="text-gray-400 text-xs">Verified accounts with email OTP and robust administrative oversight.</p>
+                <p className="text-gray-400 text-xs">Verified accounts with email OTP ,Enjoy peace of mind with encrypted passwords and  robust administrative oversight.</p>
               </div>
             </div>
           </div>
