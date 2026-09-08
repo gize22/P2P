@@ -18,7 +18,7 @@ A full-stack web application built with the **MERN Stack** (MongoDB, Express.js,
   - Schedule live learning sessions and track session statuses.
   - Rate and review learning partners upon completion.
 - **💬 Real-time Chat & Study Groups (Socket.IO):**
-  - Telegram-style 1-to-1 private messaging with **Read/Seen (✓✓)** receipts.
+  - 1-to-1 private messaging with **Read/Seen (✓✓)** receipts.
   - Real-time Study Group creation, joining, and group chat.
   - Direct file/image sharing and downloading.
 - **❓ Community Q&A Forum:**
@@ -48,7 +48,7 @@ A full-stack web application built with the **MERN Stack** (MongoDB, Express.js,
 - Express.js
 - MongoDB & Mongoose
 - Socket.IO
-- Nodemailer / Resend API (for Email OTP & Password Reset)
+- Nodemailer / Resend API for contact and brevo api (for Email OTP & Password Reset)
 - Bcrypt.js & JSON Web Tokens (JWT)
 
 ---
