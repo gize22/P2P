@@ -74,7 +74,7 @@ P2P/
     │   ├── pages/      # Main views (Home, Login, Register, VerifyOTP, Dashboard, Groups, ChatRoom, PrivateChat, Community, Profile, AdminDashboard, HowItWorks, ForgotPassword, ResetPassword)
     │   ├── api.js      # Axios configuration
     │   └── ThemeContext.jsx # Global Dark/Light mode provider
-
+```
 ⚙️ Installation & Setup Locally
 Prerequisites
 Node.js installed on your machine.
