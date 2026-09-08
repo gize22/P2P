@@ -105,5 +105,7 @@ npm run dev
 🚀 Deployment
 Backend: Deployed on Render (Web Service).
 Frontend: Deployed on Vercel.
-👨‍💻 Author
-GitHub: @gize22
+📬 Contact & Support
+Admin Email: gizachewkassa22@gmail.com
+Live Application: https://p2plearn.vercel.app/
+👨‍💻 Author: @gize22
