@@ -10,6 +10,8 @@
   - User registration with real-time **Email OTP Verification**.
   - Secure **JWT Authentication** & bcrypt password hashing.
   - Forgot & Reset Password functionality.
+- **📬 Contact & Support:**
+  -users can use the platform's **Contact Us** page
 - **👥 Smart Skill Matching & Search:**
   - Automated recommendation system matching students based on *Skills to Teach* and *Skills to Learn*.
   - Skill-based search and filter functionality.
