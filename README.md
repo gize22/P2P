@@ -1,6 +1,6 @@
 # 🚀 P2P Learn — Peer-to-Peer Learning Platform
 
-A full-stack web application built with the **MERN Stack** (MongoDB, Express.js, React.js, Node.js) combined with **Socket.IO** for real-time communication. This platform connects university students so they can teach, learn, collaborate in study groups, and review each other.
+**P2P Learn** A full-stack web application built with the **MERN Stack** (MongoDB, Express.js, React.js, Node.js) combined with **Socket.IO** for real-time communication. This platform is  designed to connect university students. It empowers peers to share knowledge, master new technical skills, collaborate in real-time study groups, and grow together academically.
 
 ---
 
@@ -51,6 +51,10 @@ A full-stack web application built with the **MERN Stack** (MongoDB, Express.js,
 - Nodemailer / Resend API for contact and brevo api (for Email OTP & Password Reset)
 - Bcrypt.js & JSON Web Tokens (JWT)
 
+## 📬 Contact & Support
+For inquiries or feedback, users can use the platform's **Contact Us** page. Messages are delivered directly to the platform admin email:
+- **Admin Email:** gizachewkassa22@gmail.com
+- **Live Application:** [https://p2plearn.vercel.app/](https://p2plearn.vercel.app/)
 ---
 
 ## 📁 Project Structure
