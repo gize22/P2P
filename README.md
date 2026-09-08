@@ -11,7 +11,8 @@
   - Secure **JWT Authentication** & bcrypt password hashing.
   - Forgot & Reset Password functionality.
 - **📬 Contact & Support:**
-  -users can use the platform's **Contact Us** page
+  - users can use the platform's **Contact Us** page and
+  - Messages are delivered directly to the platform admin email
 - **👥 Smart Skill Matching & Search:**
   - Automated recommendation system matching students based on *Skills to Teach* and *Skills to Learn*.
   - Skill-based search and filter functionality.
