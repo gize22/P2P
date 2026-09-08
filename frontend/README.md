@@ -76,3 +76,6 @@ P2P/
 Prerequisites:
 Node.js installed on your machine.
 MongoDB Atlas account (or local MongoDB).
+1. Clone the Repository.
+ git clone https://github.com/gize22/P2P.git
+ cd P2P
