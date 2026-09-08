@@ -1,39 +1,78 @@
-# P2P Learn - Frontend
+# 🚀 P2P Learn — Peer-to-Peer Learning Platform
 
-This is the frontend client for **P2P Learn**, a next-generation peer-to-peer learning platform designed for university students to teach, learn, collaborate in study groups, and connect seamlessly.
+**P2P Learn** is a full-stack web application built with the **MERN Stack** (MongoDB, Express.js, React.js, Node.js) combined with **Socket.IO** for real-time communication. This platform is designed to connect university students, empowering peers to share knowledge, master new technical skills, collaborate in real-time study groups, and grow together academically.
 
-## 🚀 Features
-- **User Authentication:** Secure registration and login with Email OTP verification.
-- **Role-Based Dashboards:** Dedicated dashboards for students and system administrators.
-- **Smart Matching System:** Connects learners with peers based on skills to teach and learn.
-- **Real-Time Chat:**  1-to-1 private messaging and study group chats powered by Socket.io.
-- **Dark/Light Mode:** Seamless theme switcher across all pages.
-- **Community Forum & Q&A:** Platform to post technical questions and get answers from peers.
+---
+
+## ✨ Key Features
+
+* **🔐 Authentication & Security:**
+  - User registration with real-time **Email OTP Verification** (via Brevo API).
+  - Secure **JWT Authentication** & bcrypt password hashing.
+  - Forgot & Reset Password functionality.
+* **📬 Contact & Support:**
+  - Interactive **Contact Us** page.
+  - Messages are delivered directly to the platform admin email.
+* **👥 Smart Skill Matching & Search:**
+  - Automated recommendation system matching students based on *Skills to Teach* and *Skills to Learn*.
+  - Skill-based search and filter functionality.
+* **🤝 Peer Connections & Sessions:**
+  - Send, accept, or reject learning requests.
+  - Schedule live learning sessions and track session statuses.
+  - Rate and review learning partners upon completion.
+* **💬 Real-time Chat & Study Groups (Socket.IO):**
+  - 1-to-1 private messaging with **Read/Seen (✓✓)** receipts and real-time pop-up notifications across all pages.
+  - Real-time Study Group creation, joining, and group chat.
+  - Direct file/image sharing and downloading.
+* **❓ Community Q&A Forum:**
+  - Post technical questions and receive answers from peers.
+* **🛡️ Admin Control Panel:**
+  - Full platform statistics overview (Total users, groups, questions).
+  - User management (Delete users, promote to admin).
+  - Content moderation (Delete groups, remove members, delete inappropriate chat files/messages, and remove Q&A posts).
+  - Broadcast platform announcements to all students.
+* **🌙☀️ UI/UX & Themes:**
+  - Fully responsive design for mobile, tablet, and desktop devices.
+  - Instant **Dark/Light Mode** switcher across all pages.
+
+---
 
 ## 🛠️ Tech Stack
-- **Framework:** React.js (Vite)
-- **Styling:** Tailwind CSS
-- **Routing:** React Router DOM
-- **Real-Time Communication:** Socket.io-client
-- **HTTP Client:** Axios
 
-## 📦 Getting Started Locally
+**Frontend:**
+* React.js (Vite)
+* Tailwind CSS
+* React Router DOM
+* Axios
+* Socket.IO Client
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/your-username/P2P.git
+**Backend:**
+* Node.js
+* Express.js
+* MongoDB & Mongoose
+* Socket.IO
+* Brevo HTTP API (for Email OTP, Password Reset, and Contact notifications)
+* Bcrypt.js & JSON Web Tokens (JWT)
 
-2,Navigate to the frontend directory:
-    cd P2P/frontend
+---
 
-3, Install dependencies:
-   npm install
+## 📁 Project Structure
 
-4, Create a .env file in the root of the frontend folder and add your     configuration (e.g., API base URL):
-   VITE_API_URL=http://localhost:5000/api
+```text
+P2P/
+├── backend/
+│   ├── models/        # Mongoose schemas (User, Group, Message, Session, Review, Question, Answer, Contact, GroupInvite)
+│   ├── routes/        # Express API endpoints (auth, users, requests, sessions, reviews, groups, chats, questions, admin, contact)
+│   └── server.js      # Main Express & Socket.IO server setup
+└── frontend/
+    ├── src/
+    │   ├── components/ # Reusable UI components (Navbar, RequestsList, FindLearners, Logo, GlobalNotification)
+    │   ├── pages/      # Main views (Home, Login, Register, VerifyOTP, Dashboard, Groups, ChatRoom, PrivateChat, Community, Profile, AdminDashboard, HowItWorks, ForgotPassword, ResetPassword, About, Contact)
+    │   ├── api.js      # Axios configuration
+    │   └── ThemeContext.jsx # Global Dark/Light mode provider
 
-5, Run the development server:
-   npm run dev
-
-6, Deployment
-   The frontend is deployed and live on Vercel.
+```
+⚙️ Installation & Setup Locally
+Prerequisites:
+Node.js installed on your machine.
+MongoDB Atlas account (or local MongoDB).
